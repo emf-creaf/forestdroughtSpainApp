@@ -1,0 +1,31 @@
+Package: forestdroughtSpainApp
+Title: ForestDrought Shiny App For Continental Spain and Balearic Islands
+Version: 0.0.0.9000
+Authors@R: 
+    person("Víctor", "Granda", , "victorgrandagarcia@gmail.com", role = c("aut", "cre"))
+Description: Shiny app package wrapper for continental spain medfate results.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
+Imports: 
+    arrow,
+    bslib,
+    DBI,
+    dplyr,
+    duckdb,
+    echarts4r,
+    glue,
+    htmltools,
+    mapdeck,
+    mirai,
+    promises,
+    purrr,
+    sf,
+    shiny,
+    shinyjs,
+    shinyWidgets,
+    waiter,
+    withr
+Depends: 
+    R (>= 3.5)
