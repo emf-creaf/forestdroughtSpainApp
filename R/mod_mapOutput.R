@@ -92,11 +92,10 @@ mod_map <- function(
       region = ""
     )$cd("forestdrought-spain-app-pngs")
 
-    # arrow::open_dataset(Sys.getenv("PARQUET_BITMAPS")) |>
     arrow::open_dataset(
       arrow_sink,
       factory_options = list(
-        selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
+        selector_ignore_prefixes = c("daily_medfateland_timeseries.parquet")
       )
     ) |>
       dplyr::filter(date == date_sel) |>
@@ -150,7 +149,7 @@ mod_map <- function(
         bitmap_sel[["min_value"]],
         bitmap_sel[["max_value"]],
         length.out = 5
-      ), 0)),
+      ), 3)),
       colours = scales::col_numeric(
         hcl.colors(10, "ag_GrnYl", alpha = 0.8),
         c(bitmap_sel[["min_value"]], bitmap_sel[["max_value"]]),
