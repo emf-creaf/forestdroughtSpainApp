@@ -272,3 +272,7 @@ footer>div.row {
   background: var(--mapdeck-legend-bg) !important;
   border: 0px !important;
 }
+
+#map_absolute_inputs {
+  z-index: 9999;
+}

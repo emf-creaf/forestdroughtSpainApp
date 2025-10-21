@@ -108,7 +108,7 @@ forestdrought_spain_app <- function() {
       # Main (Explore) tab
       shiny::tabPanel(
         title = mod_tab_translateOutput("main_tab_translation"),
-        icon = shiny::icon("eye"),
+        icon = shiny::icon("map"),
         ########################################################### debug ####
         # shiny::absolutePanel(                                              #
         #   id = 'debug', class = 'panel panel-default', fixed = TRUE,       #
@@ -120,33 +120,14 @@ forestdrought_spain_app <- function() {
         #   shiny::textOutput('debug3')                                      #
         # ),                                                                 #
         ####################################################### end debug ####
-        shiny::sidebarLayout(
-          position = "left", fluid = TRUE,
-          sidebarPanel = shiny::sidebarPanel(
-            width = 2,
-            mod_userInput("user_input")
-          ), # END of sidebarPanel
-          mainPanel = shiny::mainPanel(
-            width = 10,
-            shiny::fluidRow(
-              shiny::column(
-                width = 7,
-                mod_mapOutput("map_output")
-              ),
-              shiny::column(
-                width = 5,
-                mod_tsOutput("ts_output")
-              )
-            )
-          ) # END of mainPanel
-        ) # END of sidebarLayout
+        mod_mapOutput("map_output")
       ), # END of main (Explore) tab
-      # Download tab
+      # Time series tab
       shiny::tabPanel(
-        title = mod_tab_translateOutput("download_tab_translation"),
-        icon = shiny::icon("save"),
-        mod_downloadOutput("download_output")
-      ), # END of donwload tab
+        title = mod_tab_translateOutput("ts_tab_translation"),
+        icon = shiny::icon("eye"),
+        mod_tsOutput("ts_output")
+      ), # END of ts tab
       # Technical specs tab
       shiny::tabPanel(
         title = mod_tab_translateOutput("tech_specs_tab_translation"),
@@ -166,26 +147,28 @@ forestdrought_spain_app <- function() {
     # mapbox token
     mapdeck::set_token(Sys.getenv("MAPBOX_TOKEN"))
 
-    # modules
-    user_reactives <- shiny::callModule(
-      mod_user, 'user_input', lang
+    # bucket
+    forestdrought_bucket <- arrow::s3_bucket(
+      "forestdrought-spain-app-pngs",
+      access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
+      secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
+      scheme = "https",
+      endpoint_override = Sys.getenv("AWS_S3_ENDPOINT"),
+      region = ""
     )
+
+    # modules
     map_reactives <- shiny::callModule(
       mod_map, 'map_output',
-      user_reactives$user_reactives,
-      lang
+      arrow_sink = forestdrought_bucket,
+      lang = lang
     )
-    ts_reactives <- shiny::callModule(
-      mod_ts, 'ts_output',
-      user_reactives$user_reactives,
-      user_reactives$user_inputs_session,
-      lang
-    )
-    download_reactives <- shiny::callModule(
-      mod_download, "download_output",
-      user_reactives$user_reactives, ts_reactives,
-      lang
-    )
+    # ts_reactives <- shiny::callModule(
+    #   mod_ts, 'ts_output',
+    #   user_reactives$user_reactives,
+    #   user_reactives$user_inputs_session,
+    #   lang
+    # )
     shiny::callModule(
       mod_techSpecs, "tech_specs_output",
       lang
@@ -193,7 +176,7 @@ forestdrought_spain_app <- function() {
 
     # tab translations
     c(
-      "main_tab_translation", "download_tab_translation",
+      "main_tab_translation", "ts_tab_translation",
       "tech_specs_tab_translation"
     ) |>
       purrr::walk(

@@ -23,7 +23,6 @@ Imports:
     purrr,
     sf,
     shiny,
-    shinyjs,
     shinyWidgets,
     waiter,
     withr

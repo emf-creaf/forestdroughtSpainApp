@@ -7,7 +7,7 @@
 \usage{
 mod_mapOutput(id)
 
-mod_map(input, output, session, user_inputs, lang)
+mod_map(input, output, session, arrow_sink, lang)
 }
 \arguments{
 \item{id}{shiny id}
@@ -18,7 +18,7 @@ mod_map(input, output, session, user_inputs, lang)
 
 \item{session}{internal}
 
-\item{user_inputs}{reactiveValues containing the user selected inputs}
+\item{arrow_sink}{bucket s3 filesystem}
 
 \item{lang}{lang selected}
 }
