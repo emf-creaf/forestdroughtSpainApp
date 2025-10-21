@@ -86,7 +86,7 @@ mod_user <- function(
           # user_longitude
           shinyWidgets::numericInputIcon(
             ns("user_longitude"), translate_app("user_longitude", lang()),
-            value = -5.641,
+            value = -3.034,
             min = -9.500, max = 4, step = 0.001,
             icon = shiny::icon("x"),
             help_text = translate_app("user_longitude_help", lang())
@@ -94,7 +94,7 @@ mod_user <- function(
           # user_latitude
           shinyWidgets::numericInputIcon(
             ns("user_latitude"), translate_app("user_latitude", lang()),
-            value = 42.662,
+            value = 43.216,
             min = 35.500, max = 44, step = 0.001,
             icon = shiny::icon("y"),
             help_text = translate_app("user_latitude_help", lang())

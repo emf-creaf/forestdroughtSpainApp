@@ -56,7 +56,7 @@ echarts_ts_formatter <- function(echart, bottom = FALSE) {
       echarts4r::e_datazoom(toolbox = FALSE, type = "slider") |>
       echarts4r::e_group("timeseries") |>
       echarts4r::e_connect_group("timeseries") |>
-      echarts4r::e_theme("emf_colors") |>
+      # echarts4r::e_theme("emf_colors") |>
       echarts4r::e_axis(axis = "x", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
       echarts4r::e_axis(axis = "y", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
       echarts4r::e_legend(textStyle = list(color = "#F8F9FA"))
@@ -65,7 +65,7 @@ echarts_ts_formatter <- function(echart, bottom = FALSE) {
       echarts4r::e_tooltip(trigger = "axis") |>
       echarts4r::e_datazoom(toolbox = FALSE, type = "slider", show = FALSE) |>
       echarts4r::e_group("timeseries") |>
-      echarts4r::e_theme("emf_colors") |>
+      # echarts4r::e_theme("emf_colors") |>
       echarts4r::e_axis(axis = "x", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
       echarts4r::e_axis(axis = "y", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
       echarts4r::e_legend(textStyle = list(color = "#F8F9FA"))

@@ -43,10 +43,26 @@ forestdrought_spain_app <- function() {
       waiter::use_waiter(),
       waiter::use_hostess(),
       shinyjs::useShinyjs(),
-      # echart theme reg
+      # echart themes reg
       echarts4r::e_theme_register(
         '{"color":["#14ABCC","#7CC69A","#E3DF68","#ED51C1"],"backgroundColor":"#191A1A"}',
         name = "emf_colors"
+      ),
+      echarts4r::e_theme_register(
+        '{"color":["#682714","#C75C00","#F2A400","#FAE094","#FEFEE3"],"backgroundColor":"#191A1A"}',
+        name = "emf_colors_soil"
+      ),
+      echarts4r::e_theme_register(
+        '{"color":["#006E37","#F9F7EA"],"backgroundColor":"#191A1A"}',
+        name = "emf_colors_climate"
+      ),
+      echarts4r::e_theme_register(
+        '{"color":["#2A5676","#387893","#5599AB","#7BB8C1","#A3D6D6","#D2EEEA"],"backgroundColor":"#191A1A"}',
+        name = "emf_colors_wb"
+      ),
+      echarts4r::e_theme_register(
+        '{"color":["#EF4868","#ECD999"],"backgroundColor":"#191A1A"}',
+        name = "emf_colors_stress"
       ),
       # corporative image custom css
       shiny::includeCSS(

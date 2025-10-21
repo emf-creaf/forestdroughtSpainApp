@@ -11,10 +11,10 @@ mod_tsOutput <- function(id) {
   shiny::tagList(
     shiny::div(
       id = ns("ts_hostess"),
-      echarts4r::echarts4rOutput(ns("output_ts_soil"), height = 195),
-      echarts4r::echarts4rOutput(ns("output_ts_climate"), height = 195),
-      echarts4r::echarts4rOutput(ns("output_ts_wb"), height = 195),
-      echarts4r::echarts4rOutput(ns("output_ts_stress"), height = 205)
+      echarts4r::echarts4rOutput(ns("output_ts_soil"), height = 180),
+      echarts4r::echarts4rOutput(ns("output_ts_climate"), height = 180),
+      echarts4r::echarts4rOutput(ns("output_ts_wb"), height = 180),
+      echarts4r::echarts4rOutput(ns("output_ts_stress"), height = 190)
     )
   )
 }
@@ -117,7 +117,7 @@ mod_ts <- function(
             ;
           ")
           DBI::dbGetQuery(duckdb_proxy, ts_query) |>
-            dplyr::arrange(dates) |>
+            dplyr::arrange(date) |>
             dplyr::mutate(
               point_latitude = user_latitude,
               point_longitude = user_longitude
@@ -210,6 +210,7 @@ mod_ts <- function(
         soilTemp, symbol = "none",
         name = translate_app("soilTemp", lang())
       ) |>
+      echarts4r::e_theme("emf_colors_soil") |>
       echarts_ts_formatter()
   })
   output$output_ts_climate <- echarts4r::renderEcharts4r({
@@ -225,6 +226,7 @@ mod_ts <- function(
         Precipitation, symbol = "none",
         name = translate_app("Precipitation", lang())
       ) |>
+      echarts4r::e_theme("emf_colors_climate") |>
       echarts_ts_formatter()
   })
   output$output_ts_wb <- echarts4r::renderEcharts4r({
@@ -256,7 +258,8 @@ mod_ts <- function(
         LAI, symbol = "none",
         name = translate_app("LAI", lang())
       ) |>
-      echarts_ts_formatter(bottom = TRUE)
+      echarts4r::e_theme("emf_colors_wb") |>
+      echarts_ts_formatter()
   })
   output$output_ts_stress <- echarts4r::renderEcharts4r({
     ts_data$result() |>
@@ -271,7 +274,8 @@ mod_ts <- function(
         LFMC, symbol = "none",
         name = translate_app("LFMC", lang())
       ) |>
-      echarts_ts_formatter()
+      echarts4r::e_theme("emf_colors_stress") |>
+      echarts_ts_formatter(bottom = TRUE)
   })
 
   # 5. Use $result() also to get the point info and show it in the
