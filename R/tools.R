@@ -48,48 +48,31 @@ translate_app <- function(id, lang, thesaurus = apps_translations) {
 #' @param echart echarts4r object to format
 #' @param bottom Logical. The bottom ts needs to connect the group and also
 #'   show the datazoom slider
-echarts_ts_formatter <- function(echart, bottom = FALSE) {
-
-  if (isTRUE(bottom)) {
-    echart |>
-      echarts4r::e_tooltip(trigger = "axis") |>
-      echarts4r::e_datazoom(toolbox = FALSE, type = "slider") |>
-      echarts4r::e_group("timeseries") |>
-      echarts4r::e_connect_group("timeseries") |>
-      # echarts4r::e_theme("emf_colors") |>
-      echarts4r::e_axis(
-        axis = "x",
-        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
-        axisLabel = list(color = "#969696"),
-        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
-      ) |>
-      echarts4r::e_axis(
-        axis = "y",
-        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
-        axisLabel = list(color = "#969696"),
-        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
-      ) |>
-      echarts4r::e_legend(textStyle = list(color = "#969696", opacity = 0.9))
-  } else {
-    echart |>
-      echarts4r::e_tooltip(trigger = "axis") |>
-      echarts4r::e_datazoom(toolbox = FALSE, type = "slider", show = FALSE) |>
-      echarts4r::e_group("timeseries") |>
-      # echarts4r::e_theme("emf_colors") |>
-      echarts4r::e_axis(
-        axis = "x",
-        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
-        axisLabel = list(color = "#969696"),
-        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
-      ) |>
-      echarts4r::e_axis(
-        axis = "y",
-        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
-        axisLabel = list(color = "#969696"),
-        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
-      ) |>
-      echarts4r::e_legend(textStyle = list(color = "#969696", opacity = 0.9))
-  }
+echarts_ts_formatter <- function(echart) {
+  echart |>
+    echarts4r::e_tooltip(
+      trigger = "axis", confine = TRUE,
+      backgroundColor = "#4444449a",
+      borderColor ="#4444449a",
+      textStyle = list(color = "#F8F9FA")
+    ) |>
+    echarts4r::e_datazoom(toolbox = FALSE, type = "inside") |>
+    echarts4r::e_group("timeseries") |>
+    echarts4r::e_connect_group("timeseries") |>
+    # echarts4r::e_theme("emf_colors") |>
+    echarts4r::e_axis(
+      axis = "x",
+      axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
+      axisLabel = list(color = "#969696"),
+      splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
+    ) |>
+    echarts4r::e_axis(
+      axis = "y",
+      axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
+      axisLabel = list(color = "#969696"),
+      splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
+    ) |>
+    echarts4r::e_legend(textStyle = list(color = "#969696", opacity = 0.9))
 }
 
 validate_rows_with_alert <- function(reactive_data, lang) {

@@ -11,7 +11,7 @@ mod_tsOutput <- function(id) {
   shiny::tagList(
     bslib::layout_sidebar(
       bslib::layout_column_wrap(
-        width = "250px",
+        width = "350px",
         !!!lapply(
           c(
             "Theta",
@@ -834,6 +834,29 @@ mod_ts <- function(
           opacity = 0.7
         )
       ) |>
-      echarts_ts_formatter(bottom = TRUE)
+      echarts_ts_formatter()
   })
+
+  # download button logic
+  output$download_ts_button <- shiny::downloadHandler(
+    filename = glue::glue(
+      "meteoland_timeseries_{format(Sys.time(), '%Y%m%d%H%M%S')}.csv"
+    ),
+    content = function(file) {
+      if (isFALSE(input$user_ts_type)) {
+        shiny::validate(
+          shiny::need(province_data(), "no provinces data yet")
+        )
+        province_data() |>
+          write.csv(file)
+      } else {
+        shiny::validate(
+          shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+        )
+        ts_coords_data$result() |>
+          purrr::list_rbind() |>
+          write.csv(file)
+      }
+    }
+  )
 }
