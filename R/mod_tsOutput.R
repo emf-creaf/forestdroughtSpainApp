@@ -159,7 +159,7 @@ mod_ts <- function(
         )),
         shiny::p(translate_app("please_wait", lang()))
       ),
-      color = '#E8EAEB'
+      color = '#f8f9fa71'
     )
     waiter_ts$show()
     on.exit(waiter_ts$hide(), add = TRUE)
@@ -293,6 +293,35 @@ mod_ts <- function(
     )
   }) |>
     shiny::bindEvent(input$user_ts_update)
+
+  # observer for hostess (copied from bslib bind_task_button code)
+  was_running <- FALSE
+  shiny::observe({
+    waiter_ts <- waiter::Waiter$new(
+      id = NULL,
+      html = shiny::tagList(
+        hostess_ts$get_loader(),
+        shiny::br(),
+        shiny::p(glue::glue(
+          "{translate_app('getting_data_for', lang())} {shiny::isolate(input$user_longitude)} - {shiny::isolate(input$user_latitude)}"
+        )),
+        shiny::p(translate_app("please_wait", lang()))
+      ),
+      color = '#f8f9fa71'
+    )
+    running <- ts_coords_data$status() == "running"
+    if (running != was_running) {
+      was_running <<- running
+      if (running) {
+        # show hostess
+        waiter_ts$show()
+        hostess_ts$start()
+      } else {
+        waiter_ts$hide()
+        hostess_ts$close()
+      }
+    }
+  }, priority = 1000)
 
   # echarts4r outputs
   output$ts_Precipitation <- echarts4r::renderEcharts4r({

@@ -180,7 +180,7 @@ mod_map <- function(
         )),
         shiny::p(translate_app("please_wait", lang()))
       ),
-      color = '#E8EAEB'
+      color = '#f8f9fa71'
     )
     waiter_map$show()
     on.exit(waiter_map$hide(), add = TRUE)
@@ -232,7 +232,7 @@ mod_map <- function(
         )),
         shiny::p(translate_app("please_wait", lang()))
       ),
-      color = '#E8EAEB'
+      color = '#f8f9fa71'
     )
     waiter_map$show()
     on.exit(waiter_map$hide(), add = TRUE)

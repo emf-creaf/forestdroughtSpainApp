@@ -260,7 +260,19 @@ footer>div.row {
   color: var(--main-dark-color);
 }
 .waiter-local {
-  left: 0px !important;
+  top: 33% !important;
+  left: 33% !important;
+  height: 33% !important;
+  width: 33% !important;
+}
+.waiter-fullscreen {
+  top: 33% !important;
+  left: 33% !important;
+  height: 33% !important;
+  width: 33% !important;
+}
+.ldBar {
+  width: 100% !important;
 }
 .ldBar-label {
   color: var(--main-dark-color);
