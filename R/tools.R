@@ -57,53 +57,39 @@ echarts_ts_formatter <- function(echart, bottom = FALSE) {
       echarts4r::e_group("timeseries") |>
       echarts4r::e_connect_group("timeseries") |>
       # echarts4r::e_theme("emf_colors") |>
-      echarts4r::e_axis(axis = "x", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
-      echarts4r::e_axis(axis = "y", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
-      echarts4r::e_legend(textStyle = list(color = "#F8F9FA"))
+      echarts4r::e_axis(
+        axis = "x",
+        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
+        axisLabel = list(color = "#969696"),
+        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
+      ) |>
+      echarts4r::e_axis(
+        axis = "y",
+        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
+        axisLabel = list(color = "#969696"),
+        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
+      ) |>
+      echarts4r::e_legend(textStyle = list(color = "#969696", opacity = 0.9))
   } else {
     echart |>
       echarts4r::e_tooltip(trigger = "axis") |>
       echarts4r::e_datazoom(toolbox = FALSE, type = "slider", show = FALSE) |>
       echarts4r::e_group("timeseries") |>
       # echarts4r::e_theme("emf_colors") |>
-      echarts4r::e_axis(axis = "x", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
-      echarts4r::e_axis(axis = "y", axisLine = list(lineStyle = list(color = "#F8F9FA"))) |>
-      echarts4r::e_legend(textStyle = list(color = "#F8F9FA"))
+      echarts4r::e_axis(
+        axis = "x",
+        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
+        axisLabel = list(color = "#969696"),
+        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
+      ) |>
+      echarts4r::e_axis(
+        axis = "y",
+        axisLine = list(lineStyle = list(color = "#969696", opacity = 0.9)),
+        axisLabel = list(color = "#969696"),
+        splitLine = list(lineStyle = list(color = "#969696", opacity = 0.9))
+      ) |>
+      echarts4r::e_legend(textStyle = list(color = "#969696", opacity = 0.9))
   }
-}
-
-#' echarts cv builder
-#'
-#' Build the cross validations maps
-#'
-#' @param echart_data data to build the echart
-#' @param stat2plot stat (bias, mae...) to plot
-#' @param lang selected lang for translations
-echarts_cv_builder <- function(echart_data, stat2plot, lang) {
-  echart_data |>
-    dplyr::filter(stat == stat2plot) |>
-    echarts4r::e_charts(interpolator_id) |>
-    echarts4r::e_map_register(
-      "interpolator_bboxes", interpolators_geojson
-    ) |>
-    echarts4r::e_map(
-      value, map = "interpolator_bboxes", nameProperty = "i_step"
-    ) |>
-    echarts4r::e_visual_map(
-      value,
-      inRange = list(color = c("#14ABCC", "#7CC69A", "#E3DF68")),
-      min = 0, max = 100, precision = 3,
-      textStyle = list(color = "#F8F9FA"),
-      left = "right"
-    ) |>
-    echarts4r::e_title(
-      translate_app(stat2plot, lang()),
-      left = "center", textStyle = list(
-        fontStyle = "oblique", fontWeight = "bold", fontSize = 14,
-        color = "#F8F9FA"
-      )
-    ) |>
-    echarts4r::e_theme("emf_colors")
 }
 
 validate_rows_with_alert <- function(reactive_data, lang) {

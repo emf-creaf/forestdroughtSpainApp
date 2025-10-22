@@ -1,40 +1,35 @@
-## code to prepare `app_translations` dataset goes here
-
+# code to prepare `app_translations` dataset goes here
 app_translations <- tibble::tribble(
   ~text_id, ~translation_cat, ~translation_eng, ~translation_spa,
   # tabs translations
-  "main_tab_translation", "Explora", "Explore", "Explora",
-  "download_tab_translation", "Descarrega", "Download", "Descarga",
-  "cv_tab_translation", "Validacions creuades", "Cross Validations", "Validaciones cruzadas",
+  "main_tab_translation", "Mapa diari", "Daily map", "Mapa diario",
+  "ts_tab_translation", "Sèries temporals", "Timeseries", "Series temporales",
   "tech_specs_tab_translation", "Especificacions tècniques", "Technical specifications", "Especificaciones técnicas",
   # variables
-  "MeanTemperature", "Temperatura mitjana [°C]", "Mean Temperature [°C]", "Temperatura media [°C]",
-  "MinTemperature", "Temperatura mínima [°C]", "Min Temperature [°C]", "Temperatura mínima [°C]",
-  "MaxTemperature", "Temperatura màxima [°C]", "Max Temperature [°C]", "Temperatura máxima [°C]",
-  "MeanRelativeHumidity", "Humitat relativa mitjana [%]", "Mean Relative Humidity [%]", "Humedad relativa media [%]",
-  "MinRelativeHumidity", "Humitat relativa mínima [%]", "Min Relative Humidity [%]", "Humedad relativa mínima [%]",
-  "MaxRelativeHumidity", "Humitat relativa màxima [%]", "Max Relative Humidity [%]", "Humedad relativa máxima [%]",
-  "Precipitation", "Precipitació [mm]", "Precipitation [mm]", "Precipitación [mm]",
-  "Radiation", "Radiació [MJ/m2]", "Radiation [MJ/m2]", "Radiación [MJ/m2]",
-  "WindSpeed", "Velocitat del vent [m/s]", "Wind Speed [m/s]", "Velocidad del viento [m/s]",
-  "WindDirection", "Direcció del vent [° des del N]", "Wind Direction [° from N]", "Dirección del viento [° desde N]",
-  "ThermalAmplitude", "Amplitud Tèrmica [°C]", "Thermal Amplitude [°C]", "Amplitud Térmica [°C]",
-  "PET", "PET [mm]", "PET [mm]", "PET [mm]",
-  "RangeTemperature", "Rang de Temperatura [°C]", "Temperature range [°C]", "Rango de Temperatura [°C]",
-  "RelativeHumidity", "Humitat relativa [%]", "Relative Humidity [%]", "Humedad relativa [%]",
-  "TotalPrecipitation", "Precipitació Total [mm]", "Total Precipitation [mm]", "Precipitación Total [mm]",
-  "StationsPrecipitation", "Precipitació Estacions [mm]", "Stations Precipitation [mm]", "Precipitación Estaciones [mm]",
-  # cv stats
-  "bias", "Setge", "Bias", "Sesgo",
-  "relative_bias", "Sesgo relatiu", "Relative bias", "Sesgo relativo",
-  "mae", "Error Absolut Mitjà", "Mean Absolute Error (MAE)", "Error Absoluto Medio (MAE)",
-  "r2", "R quadrat", "R squared", "R cuadrado",
-  "n_stations", "Nombre d'estacions", "Number of stations", "Número de estaciones",
+  "Precipitation", "Precipitació (mm/dia)", "Precipitation (mm/day)", "Precipitación (mm/día)",
+  "PET", "Evapo-transpiració potencial (mm/dia)", "Potential evapo-transpiration (mm/day)", "Evap-transpiración potencial (mm/día)",
+  "Eplant", "Transpiració (mm/dia)", "Plant transpiration (mm/day)", "Transpiración plantas (mm/día)",
+  "Esoil", "Evaporació del sòl (mm/dia)", "Soil evaporation (mm/day)", "Evaporación del suelo (mm/día)",
+  "Runoff", "Escorrentia (mm/dia)", "Run-off (mm/day)", "Escorrentía (mm/día)",
+  "DeepDrainage", "Drenatje a profunditat (mm/dia)", "Deep drainage (mm/day)", "Drenaje a profundidad (mm/día)",
+  "REW", "Aigua extraïble relativa (%)", "Relative extractable water (%)", "Agua extraible relativa (%)",
+  "Theta", "Contingut d'humitat (m3/m3)", "Soil moisture content (m3/m3)", "Contenido de humedad del suelo (m3/m3)",
+  "Psi", "Potencial hídric del sòl (-MPa)", "Soil water potential (-MPa)", "Potencial hídrico del suelo (-MPa)",
+  "DDS", "Intensitat de l'estrès (%)", "Stress intensity (%)", "Intensidad del estrés (%)",
+  "LMFC", "Contingut d'humitat de el combustible viu (%)", "Live Fuel Moisture Content (%)", "Contenido de humedad del combustible vivo (%)",
+  "LAI", "Índex d'àrea foliar (m2/m2)", "Leaf area index (m2/m2)", "Índice de área foliar (m2/m2)",
+  "Infiltration", "Infiltració (mm/dia)", "Infiltration (mm/day)", "Infiltración (mm/día)",
+  "Interception", "Intercepció (mm/dia)", "Interception (mm/day)", "Intercepción (mm/día)",
+  "soilW", "soilW??", "soilW??", "soilW??",
+  "soilTemp", "Temperatura del sòl (ºC)", "Soil temperature (ºC)", "Temperatura del suelo (ºC)",
   # user_inputs
-  "user_var_date_title", "Mapa", "Map controls", "Mapa",
+  "map_controls", "Mapa", "Map controls", "Mapa",
   "user_var", "Variable:", "Variable:", "Variable:",
   "user_date", "Data:", "Date:", "Fecha:",
-  "user_ts_title", "Sèries temporals", "Time series controls", "Series temporales",
+  "user_agg", "Afegeix per província", "Aggregate by province", "Agregar por provincia",
+  "ts_controls", "Sèries temporals", "Time series controls", "Series temporales",
+  "user_ts_type", "Calcular per coordenades", "Calculate for coordinates", "Calcular para coordenadas",
+  "user_province", "Provincia:", "Province:", "Provincia:",
   "user_longitude", "Longitud", "Longitude", "Longitud",
   "user_latitude", "Latitud", "Latitude", "Latitud",
   "user_longitude_help", "La longitud ha d'estar entre -9.5 i 4", "Longitude must be between -9.5 and 4", "La longitud debe estar entre -9.5 y 4",
@@ -68,15 +63,30 @@ app_translations <- tibble::tribble(
   "", "", "", ""
 )
 
-# source other data-raw scripts needed
-source("data-raw/cv_assets.R")
+province_names <- arrow::s3_bucket(
+  "forestdrought-spain-app-pngs",
+  access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
+  secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
+  scheme = "https",
+  endpoint_override = Sys.getenv("AWS_S3_ENDPOINT"),
+  region = ""
+) |>
+  arrow::open_dataset(
+    factory_options = list(
+      selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
+    )
+  ) |>
+  dplyr::select(provincia) |>
+  dplyr::distinct() |>
+  dplyr::arrange(provincia) |>
+  dplyr::pull(provincia, as_vector = TRUE)
 
 # internal data for package
 usethis::use_data(
   # app_translations
   app_translations,
-  # cv json (from cv_assets.R)
-  interpolators_geojson,
+  # province names
+  province_names,
   # opts
   internal = TRUE, overwrite = TRUE
 )

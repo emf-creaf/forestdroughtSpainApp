@@ -9,12 +9,40 @@ mod_tsOutput <- function(id) {
   # ns
   ns <- shiny::NS(id)
   shiny::tagList(
-    shiny::div(
-      id = ns("ts_hostess"),
-      echarts4r::echarts4rOutput(ns("output_ts_soil"), height = 180),
-      echarts4r::echarts4rOutput(ns("output_ts_climate"), height = 180),
-      echarts4r::echarts4rOutput(ns("output_ts_wb"), height = 180),
-      echarts4r::echarts4rOutput(ns("output_ts_stress"), height = 190)
+    bslib::layout_sidebar(
+      bslib::layout_column_wrap(
+        width = "250px",
+        !!!lapply(
+          c(
+            "Theta",
+            "Psi",
+            "REW",
+            "soilW",
+            "soilTemp",
+            "Esoil",
+            "Eplant",
+            "PET",
+            "LAI",
+            "Precipitation",
+            "Interception",
+            "Infiltration",
+            "Runoff",
+            "DeepDrainage",
+            "DDS",
+            "LFMC"
+          ),
+          \(id) {
+            bslib::card(
+              echarts4r::echarts4rOutput(ns(paste0("ts_", id)), height = "250px")
+            )
+          }
+        )
+      ),
+      sidebar = bslib::sidebar(
+        shiny::uiOutput(ns('inputs_ts')),
+        class = "inputs_ts",
+        open = list(desktop = "open", mobile = "always-above")
+      )
     )
   )
 }
@@ -23,8 +51,7 @@ mod_tsOutput <- function(id) {
 #' @param input internal
 #' @param output internal
 #' @param session internal
-#' @param user_inputs reactiveValues containing the user selected inputs
-#' @param button_session session object from user inputs module
+#' @param arrow_sink bucket s3 filesystem
 #' @param lang lang selected
 #'
 #' @export
@@ -32,7 +59,7 @@ mod_tsOutput <- function(id) {
 #' @rdname mod_tsOutput
 mod_ts <- function(
   input, output, session,
-  user_inputs, button_session,
+  arrow_sink,
   lang
 ) {
   # get the ns
@@ -46,9 +73,122 @@ mod_ts <- function(
     fill_direction = "ltr"
   ))
 
-  # extended task for ts_data, to avoid blocking the app while calculating the
+  # ts inputs
+  output$inputs_ts <- shiny::renderUI({
+    # tagList creating the draggable absolute panel
+    shiny::tagList(
+      # first row of inputs, variable and dates
+      shiny::h4(translate_app("ts_controls", lang())),
+      shiny::br(),
+      shiny::fluidRow(
+        shiny::column(
+          width = 12,
+          # aggregation input
+          shinyWidgets::materialSwitch(
+            ns("user_ts_type"), label = translate_app("user_ts_type", lang()),
+            value = FALSE
+          ),
+          shiny::conditionalPanel(
+            condition = "input.user_ts_type == false", ns = ns,
+            shiny::br(),
+            shinyWidgets::pickerInput(
+              ns("user_province"), label = translate_app("user_province", lang()),
+              choices = province_names,
+              selected = province_names[1],
+              multiple = FALSE,
+              options = shinyWidgets::pickerOptions(
+                actionsBox = FALSE,
+                tickIcon = "glyphicon-ok-sign"
+              )
+            )
+          ),
+          shiny::conditionalPanel(
+            condition = "input.user_ts_type == true", ns = ns,
+            shiny::br(),
+            # user_longitude
+            shiny::numericInput(
+              ns("user_longitude"), translate_app("user_longitude", lang()),
+              value = -3.034,
+              min = -9.500, max = 4, step = 0.100,
+              updateOn = "blur"
+            ),
+            # user_latitude
+            shiny::numericInput(
+              ns("user_latitude"), translate_app("user_latitude", lang()),
+              value = 43.216,
+              min = 35.500, max = 44, step = 0.100,
+              updateOn = "blur"
+            ),
+            # user_ts_calculate
+            bslib::input_task_button(
+              ns("user_ts_update"), translate_app("user_ts_calculate", lang()),
+              icon = shiny::icon("rotate"),
+              label_busy = translate_app("user_ts_refresh_calculating", lang())
+            )
+          ),
+          shiny::br(), shiny::br(),
+          # download
+          shiny::wellPanel(
+            shiny::h4(translate_app("download_ts_title", lang())),
+            shiny::p(translate_app("download_ts_text", lang())),
+            shiny::downloadButton(
+              ns("download_ts_button"), translate_app("download_ts_button", lang()),
+              icon = shiny::icon("up-right-from-square")
+            )
+          )
+        )
+      ) # END of first row of inputs
+    ) # end of tagList
+  }) # end of ts inputs ui
+
+  # province ts data
+  province_data <- shiny::reactive({
+    # only run when inputs are populated
+    shiny::validate(
+      shiny::need(input$user_province, "Missing province")
+    )
+
+    # show hostess
+    waiter_ts <- waiter::Waiter$new(
+      id = NULL,
+      html = shiny::tagList(
+        hostess_ts$get_loader(),
+        shiny::br(),
+        shiny::p(glue::glue(
+          "{translate_app('getting_data_for', lang())} {input$user_province}"
+        )),
+        shiny::p(translate_app("please_wait", lang()))
+      ),
+      color = '#E8EAEB'
+    )
+    waiter_ts$show()
+    on.exit(waiter_ts$hide(), add = TRUE)
+    hostess_ts$start()
+    on.exit(hostess_ts$close(), add = TRUE)
+
+    province_sel <- input$user_province
+    # arrow data
+    arrow::open_dataset(
+      arrow_sink,
+      factory_options = list(
+        selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
+      )
+    ) |>
+      dplyr::filter(provincia == province_sel) |>
+      dplyr::as_tibble()
+  }) |>
+    shiny::bindCache(
+      # input$user_var,
+      input$user_province,
+      cache = "session"
+    ) |>
+    shiny::bindEvent(
+      input$user_province
+    )
+
+  # extended task for ts_coords_data, to avoid blocking the app while calculating the
   # time series
-  ts_data <- shiny::ExtendedTask$new(
+  ts_coords_data <- shiny::ExtendedTask$new(
     \(...) {
       mirai::mirai_map(
         1L:12L,
@@ -95,6 +235,7 @@ mod_ts <- function(
               avg(Precipitation) FILTER (NOT isnan(Precipitation)) AS Precipitation,
               avg(PET) FILTER (NOT isnan(PET)) AS PET,
               avg(Interception) FILTER (NOT isnan(Interception)) AS Interception,
+              avg(Infiltration) FILTER (NOT isnan(Infiltration)) AS Infiltration,
               avg(Runoff) FILTER (NOT isnan(Runoff)) AS Runoff,
               avg(DeepDrainage) FILTER (NOT isnan(DeepDrainage)) AS DeepDrainage,
               avg(Esoil) FILTER (NOT isnan(Esoil)) AS Esoil,
@@ -127,207 +268,543 @@ mod_ts <- function(
       )
     }
   ) |>
-    bslib::bind_task_button("user_ts_update", session = button_session)
+    bslib::bind_task_button("user_ts_update")
   # 2. create an observer, bind it to the action button and invoke the
   # extended task
   shiny::observe({
     # validate inputs
     shiny::validate(
-      shiny::need(user_inputs$user_latitude, "Missing latitude"),
-      shiny::need(user_inputs$user_longitude, "Missing longitude")
+      shiny::need(input$user_latitude, "Missing latitude"),
+      shiny::need(input$user_longitude, "Missing longitude")
     )
     # user points bbox (500^2)
     coords_bbox <- dplyr::tibble(
-      x = user_inputs$user_longitude, y = user_inputs$user_latitude
+      x = input$user_longitude, y = input$user_latitude
     ) |>
       sf::st_as_sf(coords = c("x", "y"), crs = 4326) |>
       sf::st_transform(crs = 25830) |>
       sf::st_buffer(250) |>
       sf::st_bbox()
     # invoke extended task
-    ts_data$invoke(
-      user_longitude = user_inputs$user_longitude,
-      user_latitude = user_inputs$user_latitude,
+    ts_coords_data$invoke(
+      user_longitude = input$user_longitude,
+      user_latitude = input$user_latitude,
       coords_bbox = coords_bbox
     )
   }) |>
-    shiny::bindEvent(user_inputs$user_ts_update)
+    shiny::bindEvent(input$user_ts_update)
 
-  # 3. observer for hostess (copied from bslib bind_task_button code)
-  was_running <- FALSE
-  shiny::observe({
-    waiter_ts <- waiter::Waiter$new(
-      id = ns("ts_hostess"),
-      html = shiny::tagList(
-        hostess_ts$get_loader(),
-        shiny::br(),
-        shiny::p(glue::glue(
-          "{translate_app('getting_data_for', lang())} {shiny::isolate(user_inputs$user_longitude)} - {shiny::isolate(user_inputs$user_latitude)}"
-        )),
-        shiny::p(translate_app("please_wait", lang()))
-      ),
-      color = '#E8EAEB'
-    )
-    running <- ts_data$status() == "running"
-    if (running != was_running) {
-      was_running <<- running
-      if (running) {
-        # show hostess
-        waiter_ts$show()
-        hostess_ts$start()
-      } else {
-        waiter_ts$hide()
-        hostess_ts$close()
-      }
+  # echarts4r outputs
+  output$ts_Precipitation <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
     }
-  }, priority = 1000)
 
-  # 4. use $result() to get the extended task result when calculated
-  # echart outputs (temp, rh and rad-prec-pet (rpp))
-  # title only in the first, zoom only in last
-  output$output_ts_soil <- echarts4r::renderEcharts4r({
-    ts_data$result() |>
-      purrr::list_rbind() |>
+    ts_data |>
       dplyr::arrange(date) |>
       echarts4r::e_charts(date) |>
       echarts4r::e_line(
-        Theta, symbol = "none",
-        name = translate_app("Theta", lang())
+        Precipitation, symbol = "none",
+        name = translate_app("Precipitation", lang()),
+        lineStyle = list(color = "#2575CF"),
+        itemStyle = list(color = "#2575CF"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#2575CF"),
+              list(offset = 1, color = "#2575CF00")
+            )
+          ),
+          opacity = 0.7
+        )
       ) |>
-      echarts4r::e_line(
-        Psi, symbol = "none",
-        name = translate_app("Psi", lang())
-      ) |>
-      echarts4r::e_line(
-        REW, symbol = "none",
-        name = translate_app("REW", lang())
-      ) |>
-      echarts4r::e_line(
-        soilW, symbol = "none",
-        name = translate_app("soilW", lang())
-      ) |>
-      echarts4r::e_line(
-        soilTemp, symbol = "none",
-        name = translate_app("soilTemp", lang())
-      ) |>
-      echarts4r::e_theme("emf_colors_soil") |>
       echarts_ts_formatter()
   })
-  output$output_ts_climate <- echarts4r::renderEcharts4r({
-    ts_data$result() |>
-      purrr::list_rbind() |>
+  output$ts_PET <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
       dplyr::arrange(date) |>
       echarts4r::e_charts(date) |>
       echarts4r::e_line(
         PET, symbol = "none",
-        name = translate_app("PET", lang())
+        name = translate_app("PET", lang()),
+        lineStyle = list(color = "#94C96E"),
+        itemStyle = list(color = "#94C96E"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#94C96E"),
+              list(offset = 1, color = "#94C96E00")
+            )
+          ),
+          opacity = 0.7
+        )
       ) |>
-      echarts4r::e_line(
-        Precipitation, symbol = "none",
-        name = translate_app("Precipitation", lang())
-      ) |>
-      echarts4r::e_theme("emf_colors_climate") |>
       echarts_ts_formatter()
   })
-  output$output_ts_wb <- echarts4r::renderEcharts4r({
-    ts_data$result() |>
-      purrr::list_rbind() |>
+  output$ts_Interception <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
       dplyr::arrange(date) |>
       echarts4r::e_charts(date) |>
       echarts4r::e_line(
         Interception, symbol = "none",
-        name = translate_app("Interception", lang())
+        name = translate_app("Interception", lang()),
+        lineStyle = list(color = "#2575CF"),
+        itemStyle = list(color = "#2575CF"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#2575CF"),
+              list(offset = 1, color = "#2575CF00")
+            )
+          ),
+          opacity = 0.7
+        )
       ) |>
-      echarts4r::e_line(
-        Runoff, symbol = "none",
-        name = translate_app("Runoff", lang())
-      ) |>
-      echarts4r::e_line(
-        DeepDrainage, symbol = "none",
-        name = translate_app("DeepDrainage", lang())
-      ) |>
-      echarts4r::e_line(
-        Esoil, symbol = "none",
-        name = translate_app("Esoil", lang())
-      ) |>
-      echarts4r::e_line(
-        Eplant, symbol = "none",
-        name = translate_app("Eplant", lang())
-      ) |>
-      echarts4r::e_line(
-        LAI, symbol = "none",
-        name = translate_app("LAI", lang())
-      ) |>
-      echarts4r::e_theme("emf_colors_wb") |>
       echarts_ts_formatter()
   })
-  output$output_ts_stress <- echarts4r::renderEcharts4r({
-    ts_data$result() |>
-      purrr::list_rbind() |>
+  output$ts_Infiltration <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        Infiltration, symbol = "none",
+        name = translate_app("Infiltration", lang()),
+        lineStyle = list(color = "#2575CF"),
+        itemStyle = list(color = "#2575CF"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#2575CF"),
+              list(offset = 1, color = "#2575CF00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_Runoff <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        Runoff, symbol = "none",
+        name = translate_app("Runoff", lang()),
+        lineStyle = list(color = "#2575CF"),
+        itemStyle = list(color = "#2575CF"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#2575CF"),
+              list(offset = 1, color = "#2575CF00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_DeepDrainage <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        DeepDrainage, symbol = "none",
+        name = translate_app("DeepDrainage", lang()),
+        lineStyle = list(color = "#2575CF"),
+        itemStyle = list(color = "#2575CF"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#2575CF"),
+              list(offset = 1, color = "#2575CF00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_Esoil <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        Esoil, symbol = "none",
+        name = translate_app("Esoil", lang()),
+        lineStyle = list(color = "#C75C00"),
+        itemStyle = list(color = "#C75C00"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#C75C00"),
+              list(offset = 1, color = "#C75C0000")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_Eplant <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        Eplant, symbol = "none",
+        name = translate_app("Eplant", lang()),
+        lineStyle = list(color = "#94C96E"),
+        itemStyle = list(color = "#94C96E"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#94C96E"),
+              list(offset = 1, color = "#94C96E00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_LAI <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        LAI, symbol = "none",
+        name = translate_app("LAI", lang()),
+        lineStyle = list(color = "#94C96E"),
+        itemStyle = list(color = "#94C96E"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#94C96E"),
+              list(offset = 1, color = "#94C96E00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_Theta <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        Theta, symbol = "none",
+        name = translate_app("Theta", lang()),
+        lineStyle = list(color = "#00abfa"),
+        itemStyle = list(color = "#00abfa"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#00abfa"),
+              list(offset = 1, color = "#00abfa00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_REW <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        REW, symbol = "none",
+        name = translate_app("REW", lang()),
+        lineStyle = list(color = "#00abfa"),
+        itemStyle = list(color = "#00abfa"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#00abfa"),
+              list(offset = 1, color = "#00abfa00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_Psi <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        Psi, symbol = "none",
+        name = translate_app("Psi", lang()),
+        lineStyle = list(color = "#00abfa"),
+        itemStyle = list(color = "#00abfa"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 1, y = 1, x2 = 1, y2 = 0,
+            colorStops = list(
+              list(offset = 0, color = "#00abfa"),
+              list(offset = 1, color = "#00abfa00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_soilW <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        soilW, symbol = "none",
+        name = translate_app("soilW", lang()),
+        lineStyle = list(color = "#00abfa"),
+        itemStyle = list(color = "#00abfa"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#00abfa"),
+              list(offset = 1, color = "#00abfa00")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_soilTemp <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        soilTemp, symbol = "none",
+        name = translate_app("soilTemp", lang()),
+        lineStyle = list(color = "#C75C00"),
+        itemStyle = list(color = "#C75C00"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#C75C00"),
+              list(offset = 1, color = "#C75C0000")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_DDS <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
       dplyr::arrange(date) |>
       echarts4r::e_charts(date) |>
       echarts4r::e_line(
         DDS, symbol = "none",
-        name = translate_app("DDS", lang())
+        name = translate_app("DDS", lang()),
+        lineStyle = list(color = "#F5191C"),
+        itemStyle = list(color = "#F5191C"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#F5191C"),
+              list(offset = 1, color = "#F5191C00")
+            )
+          ),
+          opacity = 0.7
+        )
       ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_LFMC <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- province_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
       echarts4r::e_line(
         LFMC, symbol = "none",
-        name = translate_app("LFMC", lang())
+        name = translate_app("LFMC", lang()),
+        lineStyle = list(color = "#F5191C"),
+        itemStyle = list(color = "#F5191C"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#F5191C"),
+              list(offset = 1, color = "#F5191C00")
+            )
+          ),
+          opacity = 0.7
+        )
       ) |>
-      echarts4r::e_theme("emf_colors_stress") |>
       echarts_ts_formatter(bottom = TRUE)
   })
-
-  # 5. Use $result() also to get the point info and show it in the
-  # ui
-  # output$output_ts_point <- shiny::renderUI({
-  #   shiny::validate(
-  #     shiny::need(ts_data$result(), "no ts data yet")
-  #   )
-
-  #   point_data <- ts_data$result() |>
-  #     purrr::list_rbind()
-
-  #   point_elevation <- point_data |>
-  #     dplyr::pull(elevation) |>
-  #     dplyr::first() |>
-  #     round(2)
-  #   point_aspect <- point_data |>
-  #     dplyr::pull(aspect) |>
-  #     dplyr::first() |>
-  #     round(2)
-  #   point_slope <- point_data |>
-  #     dplyr::pull(slope) |>
-  #     dplyr::first() |>
-  #     round(2)
-  #   point_latitude <- point_data |>
-  #     dplyr::pull(point_latitude) |>
-  #     dplyr::first()
-  #   point_longitude <- point_data |>
-  #     dplyr::pull(point_longitude) |>
-  #     dplyr::first()
-
-  #   shiny::tagList(
-  #     shiny::wellPanel(
-  #       shiny::div(
-  #         align = "center",
-  #         shiny::icon("map-location"),
-  #         glue::glue("{point_longitude}, {point_latitude}  |  "),
-  #         shiny::icon("mountain"),
-  #         glue::glue("{point_elevation}m asl.  |  "),
-  #         shiny::icon("hill-rockslide"),
-  #         glue::glue("{point_slope}º  |  "),
-  #         shiny::icon("compass"),
-  #         glue::glue("{point_aspect}º")
-  #       )
-  #     )
-  #   )
-  # })
-
-  # Collect reactives to pass to the main app or other modules
-  ts_reactives <- shiny::reactiveValues()
-  shiny::observe({
-    ts_reactives$ts_data <- ts_data
-  })
-  return(ts_reactives)
 }

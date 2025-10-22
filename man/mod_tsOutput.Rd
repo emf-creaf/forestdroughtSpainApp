@@ -7,7 +7,7 @@
 \usage{
 mod_tsOutput(id)
 
-mod_ts(input, output, session, user_inputs, button_session, lang)
+mod_ts(input, output, session, arrow_sink, lang)
 }
 \arguments{
 \item{id}{shiny id}
@@ -18,9 +18,7 @@ mod_ts(input, output, session, user_inputs, button_session, lang)
 
 \item{session}{internal}
 
-\item{user_inputs}{reactiveValues containing the user selected inputs}
-
-\item{button_session}{session object from user inputs module}
+\item{arrow_sink}{bucket s3 filesystem}
 
 \item{lang}{lang selected}
 }

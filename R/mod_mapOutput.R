@@ -42,16 +42,40 @@ mod_map <- function(
   output$inputs_map <- shiny::renderUI({
     # precalculated choices
     user_var_choices <- c(
-      "Precipitation", "PET", "Interception", "Infiltration", "Runoff",
-      "DeepDrainage", "Esoil", "Eplant", "LAI",
-      "Theta", "REW", "Psi", "soilW", "soilTemp",
-      "DDS", "LFMC"
+      "Theta",
+      "Psi",
+      "REW",
+      "soilW",
+      "soilTemp",
+      "Esoil",
+      "Eplant",
+      "PET",
+      "LAI",
+      "Precipitation",
+      "Interception",
+      "Infiltration",
+      "Runoff",
+      "DeepDrainage",
+      "DDS",
+      "LFMC"
     ) |>
       purrr::set_names(translate_app(c(
-        "Precipitation", "PET", "Interception", "Infiltration", "Runoff",
-        "DeepDrainage", "Esoil", "Eplant", "LAI",
-        "Theta", "REW", "Psi", "soilW", "soilTemp",
-        "DDS", "LFMC"
+        "Theta",
+        "Psi",
+        "REW",
+        "soilW",
+        "soilTemp",
+        "Esoil",
+        "Eplant",
+        "PET",
+        "LAI",
+        "Precipitation",
+        "Interception",
+        "Infiltration",
+        "Runoff",
+        "DeepDrainage",
+        "DDS",
+        "LFMC"
       ), lang()))
 
     user_date_choices <- seq(Sys.Date() - 370, Sys.Date() - 5, by = "day") |>
@@ -61,7 +85,7 @@ mod_map <- function(
     # tagList creating the draggable absolute panel
     shiny::tagList(
       # first row of inputs, variable and dates
-      shiny::h4(translate_app("user_var_date_title", lang())),
+      shiny::h4(translate_app("map_controls", lang())),
       shiny::br(),
       shiny::fluidRow(
         shiny::column(
@@ -105,7 +129,7 @@ mod_map <- function(
             )
           )
         )
-      ), # END of first row of inputs
+      ) # END of first row of inputs
     ) # end of tagList
   }) # end of map inputs ui
 
