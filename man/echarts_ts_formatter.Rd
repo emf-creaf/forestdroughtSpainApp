@@ -4,13 +4,10 @@
 \alias{echarts_ts_formatter}
 \title{echarts ts formatter}
 \usage{
-echarts_ts_formatter(echart, bottom = FALSE)
+echarts_ts_formatter(echart)
 }
 \arguments{
 \item{echart}{echarts4r object to format}
-
-\item{bottom}{Logical. The bottom ts needs to connect the group and also
-show the datazoom slider}
 }
 \description{
 Apply the common format (legend, tooltip, theme...) to timeseries (echarts)
