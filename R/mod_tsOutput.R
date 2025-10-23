@@ -348,6 +348,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#2575CF"),
+              list(offset = 0.25, color = "#2575CF8F"),
+              list(offset = 0.5, color = "#2575CF4F"),
+              list(offset = 0.75, color = "#2575CF2F"),
               list(offset = 1, color = "#2575CF00")
             )
           ),
@@ -380,6 +383,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#94C96E"),
+              list(offset = 0.25, color = "#94C96E8F"),
+              list(offset = 0.5, color = "#94C96E4F"),
+              list(offset = 0.75, color = "#94C96E2F"),
               list(offset = 1, color = "#94C96E00")
             )
           ),
@@ -412,6 +418,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#2575CF"),
+              list(offset = 0.25, color = "#2575CF8F"),
+              list(offset = 0.5, color = "#2575CF4F"),
+              list(offset = 0.75, color = "#2575CF2F"),
               list(offset = 1, color = "#2575CF00")
             )
           ),
@@ -444,6 +453,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#2575CF"),
+              list(offset = 0.25, color = "#2575CF8F"),
+              list(offset = 0.5, color = "#2575CF4F"),
+              list(offset = 0.75, color = "#2575CF2F"),
               list(offset = 1, color = "#2575CF00")
             )
           ),
@@ -476,6 +488,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#2575CF"),
+              list(offset = 0.25, color = "#2575CF8F"),
+              list(offset = 0.5, color = "#2575CF4F"),
+              list(offset = 0.75, color = "#2575CF2F"),
               list(offset = 1, color = "#2575CF00")
             )
           ),
@@ -508,6 +523,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#2575CF"),
+              list(offset = 0.25, color = "#2575CF8F"),
+              list(offset = 0.5, color = "#2575CF4F"),
+              list(offset = 0.75, color = "#2575CF2F"),
               list(offset = 1, color = "#2575CF00")
             )
           ),
@@ -540,6 +558,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#C75C00"),
+              list(offset = 0.25, color = "#C75C008F"),
+              list(offset = 0.5, color = "#C75C004F"),
+              list(offset = 0.75, color = "#C75C002F"),
               list(offset = 1, color = "#C75C0000")
             )
           ),
@@ -572,6 +593,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#94C96E"),
+              list(offset = 0.25, color = "#94C96E8F"),
+              list(offset = 0.5, color = "#94C96E4F"),
+              list(offset = 0.75, color = "#94C96E2F"),
               list(offset = 1, color = "#94C96E00")
             )
           ),
@@ -604,6 +628,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#94C96E"),
+              list(offset = 0.25, color = "#94C96E8F"),
+              list(offset = 0.5, color = "#94C96E4F"),
+              list(offset = 0.75, color = "#94C96E2F"),
               list(offset = 1, color = "#94C96E00")
             )
           ),
@@ -636,6 +663,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#00abfa"),
+              list(offset = 0.25, color = "#00abfa8F"),
+              list(offset = 0.5, color = "#00abfa4F"),
+              list(offset = 0.75, color = "#00abfa2F"),
               list(offset = 1, color = "#00abfa00")
             )
           ),
@@ -668,6 +698,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#00abfa"),
+              list(offset = 0.25, color = "#00abfa8F"),
+              list(offset = 0.5, color = "#00abfa4F"),
+              list(offset = 0.75, color = "#00abfa2F"),
               list(offset = 1, color = "#00abfa00")
             )
           ),
@@ -700,6 +733,9 @@ mod_ts <- function(
             type = "linear", x = 1, y = 1, x2 = 1, y2 = 0,
             colorStops = list(
               list(offset = 0, color = "#00abfa"),
+              list(offset = 0.25, color = "#00abfa8F"),
+              list(offset = 0.5, color = "#00abfa4F"),
+              list(offset = 0.75, color = "#00abfa2F"),
               list(offset = 1, color = "#00abfa00")
             )
           ),
@@ -732,6 +768,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#00abfa"),
+              list(offset = 0.25, color = "#00abfa8F"),
+              list(offset = 0.5, color = "#00abfa4F"),
+              list(offset = 0.75, color = "#00abfa2F"),
               list(offset = 1, color = "#00abfa00")
             )
           ),
@@ -764,6 +803,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#C75C00"),
+              list(offset = 0.25, color = "#C75C008F"),
+              list(offset = 0.5, color = "#C75C004F"),
+              list(offset = 0.75, color = "#C75C002F"),
               list(offset = 1, color = "#C75C0000")
             )
           ),
@@ -796,6 +838,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#F5191C"),
+              list(offset = 0.25, color = "#F5191C8F"),
+              list(offset = 0.5, color = "#F5191C4F"),
+              list(offset = 0.75, color = "#F5191C2F"),
               list(offset = 1, color = "#F5191C00")
             )
           ),
@@ -828,6 +873,9 @@ mod_ts <- function(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
               list(offset = 0, color = "#F5191C"),
+              list(offset = 0.25, color = "#F5191C8F"),
+              list(offset = 0.5, color = "#F5191C4F"),
+              list(offset = 0.75, color = "#F5191C2F"),
               list(offset = 1, color = "#F5191C00")
             )
           ),
