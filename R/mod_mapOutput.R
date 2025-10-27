@@ -109,7 +109,7 @@ mod_map <- function(
             multiple = FALSE, range = FALSE,
             minDate = user_date_choices[1],
             maxDate = user_date_choices[length(user_date_choices)],
-            firstDay = 1
+            firstDay = 1, autoClose = TRUE, addon = "none"
           ),
           shiny::br(),
           # aggregation input
