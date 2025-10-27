@@ -86,7 +86,7 @@ mod_ts <- function(
           # aggregation input
           shinyWidgets::materialSwitch(
             ns("user_ts_type"), label = translate_app("user_ts_type", lang()),
-            value = FALSE
+            value = FALSE, status = "info"
           ),
           shiny::conditionalPanel(
             condition = "input.user_ts_type == false", ns = ns,
@@ -306,17 +306,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Precipitation, symbol = "none",
         name = translate_app("Precipitation", lang()),
-        lineStyle = list(color = "#2575CF"),
-        itemStyle = list(color = "#2575CF"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#2575CF"),
-              list(offset = 0.25, color = "#2575CF8F"),
-              list(offset = 0.5, color = "#2575CF4F"),
-              list(offset = 0.75, color = "#2575CF2F"),
-              list(offset = 1, color = "#2575CF00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -341,17 +341,17 @@ mod_ts <- function(
       echarts4r::e_line(
         PET, symbol = "none",
         name = translate_app("PET", lang()),
-        lineStyle = list(color = "#94C96E"),
-        itemStyle = list(color = "#94C96E"),
+        lineStyle = list(color = "#a2ffb6"),
+        itemStyle = list(color = "#a2ffb6"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#94C96E"),
-              list(offset = 0.25, color = "#94C96E8F"),
-              list(offset = 0.5, color = "#94C96E4F"),
-              list(offset = 0.75, color = "#94C96E2F"),
-              list(offset = 1, color = "#94C96E00")
+              list(offset = 0, color = "#a2ffb6"),
+              list(offset = 0.25, color = "#00e25d"),
+              list(offset = 0.5, color = "#00b33b"),
+              list(offset = 0.75, color = "#00861b"),
+              list(offset = 1, color = "#025b00")
             )
           ),
           opacity = 0.7
@@ -376,17 +376,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Interception, symbol = "none",
         name = translate_app("Interception", lang()),
-        lineStyle = list(color = "#2575CF"),
-        itemStyle = list(color = "#2575CF"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#2575CF"),
-              list(offset = 0.25, color = "#2575CF8F"),
-              list(offset = 0.5, color = "#2575CF4F"),
-              list(offset = 0.75, color = "#2575CF2F"),
-              list(offset = 1, color = "#2575CF00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -411,17 +411,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Infiltration, symbol = "none",
         name = translate_app("Infiltration", lang()),
-        lineStyle = list(color = "#2575CF"),
-        itemStyle = list(color = "#2575CF"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#2575CF"),
-              list(offset = 0.25, color = "#2575CF8F"),
-              list(offset = 0.5, color = "#2575CF4F"),
-              list(offset = 0.75, color = "#2575CF2F"),
-              list(offset = 1, color = "#2575CF00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -446,17 +446,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Runoff, symbol = "none",
         name = translate_app("Runoff", lang()),
-        lineStyle = list(color = "#2575CF"),
-        itemStyle = list(color = "#2575CF"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#2575CF"),
-              list(offset = 0.25, color = "#2575CF8F"),
-              list(offset = 0.5, color = "#2575CF4F"),
-              list(offset = 0.75, color = "#2575CF2F"),
-              list(offset = 1, color = "#2575CF00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -481,17 +481,17 @@ mod_ts <- function(
       echarts4r::e_line(
         DeepDrainage, symbol = "none",
         name = translate_app("DeepDrainage", lang()),
-        lineStyle = list(color = "#2575CF"),
-        itemStyle = list(color = "#2575CF"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#2575CF"),
-              list(offset = 0.25, color = "#2575CF8F"),
-              list(offset = 0.5, color = "#2575CF4F"),
-              list(offset = 0.75, color = "#2575CF2F"),
-              list(offset = 1, color = "#2575CF00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -516,17 +516,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Esoil, symbol = "none",
         name = translate_app("Esoil", lang()),
-        lineStyle = list(color = "#C75C00"),
-        itemStyle = list(color = "#C75C00"),
+        lineStyle = list(color = "#ffd884"),
+        itemStyle = list(color = "#ffd884"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#C75C00"),
-              list(offset = 0.25, color = "#C75C008F"),
-              list(offset = 0.5, color = "#C75C004F"),
-              list(offset = 0.75, color = "#C75C002F"),
-              list(offset = 1, color = "#C75C0000")
+              list(offset = 0, color = "#ffd884"),
+              list(offset = 0.25, color = "#e8a400"),
+              list(offset = 0.5, color = "#ba7900"),
+              list(offset = 0.75, color = "#8b5200"),
+              list(offset = 1, color = "#5b2f00")
             )
           ),
           opacity = 0.7
@@ -551,17 +551,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Eplant, symbol = "none",
         name = translate_app("Eplant", lang()),
-        lineStyle = list(color = "#94C96E"),
-        itemStyle = list(color = "#94C96E"),
+        lineStyle = list(color = "#a2ffb6"),
+        itemStyle = list(color = "#a2ffb6"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#94C96E"),
-              list(offset = 0.25, color = "#94C96E8F"),
-              list(offset = 0.5, color = "#94C96E4F"),
-              list(offset = 0.75, color = "#94C96E2F"),
-              list(offset = 1, color = "#94C96E00")
+              list(offset = 0, color = "#a2ffb6"),
+              list(offset = 0.25, color = "#00e25d"),
+              list(offset = 0.5, color = "#00b33b"),
+              list(offset = 0.75, color = "#00861b"),
+              list(offset = 1, color = "#025b00")
             )
           ),
           opacity = 0.7
@@ -586,17 +586,17 @@ mod_ts <- function(
       echarts4r::e_line(
         LAI, symbol = "none",
         name = translate_app("LAI", lang()),
-        lineStyle = list(color = "#94C96E"),
-        itemStyle = list(color = "#94C96E"),
+        lineStyle = list(color = "#a2ffb6"),
+        itemStyle = list(color = "#a2ffb6"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#94C96E"),
-              list(offset = 0.25, color = "#94C96E8F"),
-              list(offset = 0.5, color = "#94C96E4F"),
-              list(offset = 0.75, color = "#94C96E2F"),
-              list(offset = 1, color = "#94C96E00")
+              list(offset = 0, color = "#a2ffb6"),
+              list(offset = 0.25, color = "#00e25d"),
+              list(offset = 0.5, color = "#00b33b"),
+              list(offset = 0.75, color = "#00861b"),
+              list(offset = 1, color = "#025b00")
             )
           ),
           opacity = 0.7
@@ -621,17 +621,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Theta, symbol = "none",
         name = translate_app("Theta", lang()),
-        lineStyle = list(color = "#00abfa"),
-        itemStyle = list(color = "#00abfa"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#00abfa"),
-              list(offset = 0.25, color = "#00abfa8F"),
-              list(offset = 0.5, color = "#00abfa4F"),
-              list(offset = 0.75, color = "#00abfa2F"),
-              list(offset = 1, color = "#00abfa00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -639,6 +639,7 @@ mod_ts <- function(
       ) |>
       echarts_ts_formatter()
   })
+
   output$ts_REW <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
       ts_data <- province_data()
@@ -656,17 +657,17 @@ mod_ts <- function(
       echarts4r::e_line(
         REW, symbol = "none",
         name = translate_app("REW", lang()),
-        lineStyle = list(color = "#00abfa"),
-        itemStyle = list(color = "#00abfa"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#00abfa"),
-              list(offset = 0.25, color = "#00abfa8F"),
-              list(offset = 0.5, color = "#00abfa4F"),
-              list(offset = 0.75, color = "#00abfa2F"),
-              list(offset = 1, color = "#00abfa00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -691,17 +692,17 @@ mod_ts <- function(
       echarts4r::e_line(
         Psi, symbol = "none",
         name = translate_app("Psi", lang()),
-        lineStyle = list(color = "#00abfa"),
-        itemStyle = list(color = "#00abfa"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 1, y = 1, x2 = 1, y2 = 0,
             colorStops = list(
-              list(offset = 0, color = "#00abfa"),
-              list(offset = 0.25, color = "#00abfa8F"),
-              list(offset = 0.5, color = "#00abfa4F"),
-              list(offset = 0.75, color = "#00abfa2F"),
-              list(offset = 1, color = "#00abfa00")
+              list(offset = 0, color = "#0e005b"),
+              list(offset = 0.25, color = "#00458b"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00b6de"),
+              list(offset = 1, color = "#4ef0ff")
             )
           ),
           opacity = 0.7
@@ -726,17 +727,17 @@ mod_ts <- function(
       echarts4r::e_line(
         soilW, symbol = "none",
         name = translate_app("soilW", lang()),
-        lineStyle = list(color = "#00abfa"),
-        itemStyle = list(color = "#00abfa"),
+        lineStyle = list(color = "#4ef0ff"),
+        itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#00abfa"),
-              list(offset = 0.25, color = "#00abfa8F"),
-              list(offset = 0.5, color = "#00abfa4F"),
-              list(offset = 0.75, color = "#00abfa2F"),
-              list(offset = 1, color = "#00abfa00")
+              list(offset = 0, color = "#4ef0ff"),
+              list(offset = 0.25, color = "#00b6de"),
+              list(offset = 0.5, color = "#007db4"),
+              list(offset = 0.75, color = "#00458b"),
+              list(offset = 1, color = "#0e005b")
             )
           ),
           opacity = 0.7
@@ -761,17 +762,17 @@ mod_ts <- function(
       echarts4r::e_line(
         soilTemp, symbol = "none",
         name = translate_app("soilTemp", lang()),
-        lineStyle = list(color = "#C75C00"),
-        itemStyle = list(color = "#C75C00"),
+        lineStyle = list(color = "#ffd884"),
+        itemStyle = list(color = "#ffd884"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#C75C00"),
-              list(offset = 0.25, color = "#C75C008F"),
-              list(offset = 0.5, color = "#C75C004F"),
-              list(offset = 0.75, color = "#C75C002F"),
-              list(offset = 1, color = "#C75C0000")
+              list(offset = 0, color = "#ffd884"),
+              list(offset = 0.25, color = "#e8a400"),
+              list(offset = 0.5, color = "#ba7900"),
+              list(offset = 0.75, color = "#8b5200"),
+              list(offset = 1, color = "#5b2f00")
             )
           ),
           opacity = 0.7
@@ -796,17 +797,17 @@ mod_ts <- function(
       echarts4r::e_line(
         DDS, symbol = "none",
         name = translate_app("DDS", lang()),
-        lineStyle = list(color = "#F5191C"),
-        itemStyle = list(color = "#F5191C"),
+        lineStyle = list(color = "#ff9b9b"),
+        itemStyle = list(color = "#ff9b9b"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#F5191C"),
-              list(offset = 0.25, color = "#F5191C8F"),
-              list(offset = 0.5, color = "#F5191C4F"),
-              list(offset = 0.75, color = "#F5191C2F"),
-              list(offset = 1, color = "#F5191C00")
+              list(offset = 0, color = "#ff9b9b"),
+              list(offset = 0.25, color = "#ff4954"),
+              list(offset = 0.5, color = "#d40024"),
+              list(offset = 0.75, color = "#96000d"),
+              list(offset = 1, color = "#5b0000")
             )
           ),
           opacity = 0.7
@@ -831,17 +832,17 @@ mod_ts <- function(
       echarts4r::e_line(
         LFMC, symbol = "none",
         name = translate_app("LFMC", lang()),
-        lineStyle = list(color = "#F5191C"),
-        itemStyle = list(color = "#F5191C"),
+        lineStyle = list(color = "#ff9b9b"),
+        itemStyle = list(color = "#ff9b9b"),
         areaStyle = list(
           color = list(
             type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
             colorStops = list(
-              list(offset = 0, color = "#F5191C"),
-              list(offset = 0.25, color = "#F5191C8F"),
-              list(offset = 0.5, color = "#F5191C4F"),
-              list(offset = 0.75, color = "#F5191C2F"),
-              list(offset = 1, color = "#F5191C00")
+              list(offset = 0, color = "#ff9b9b"),
+              list(offset = 0.25, color = "#ff4954"),
+              list(offset = 0.5, color = "#d40024"),
+              list(offset = 0.75, color = "#96000d"),
+              list(offset = 1, color = "#5b0000")
             )
           ),
           opacity = 0.7

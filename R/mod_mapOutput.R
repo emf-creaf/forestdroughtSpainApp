@@ -115,7 +115,7 @@ mod_map <- function(
           # aggregation input
           shinyWidgets::materialSwitch(
             ns("user_agg"), label = translate_app("user_agg", lang()),
-            value = FALSE
+            value = FALSE, status = "info"
           ),
           shiny::br(), shiny::br(),
           # download
