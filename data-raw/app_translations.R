@@ -7,7 +7,8 @@ app_translations <- tibble::tribble(
   "tech_specs_tab_translation", "Especificacions tècniques", "Technical specifications", "Especificaciones técnicas",
   # variables
   "Theta", "Contingut d'humitat (m3/m3)", "Soil moisture content (m3/m3)", "Contenido de humedad del suelo (m3/m3)",
-  "Psi", "Potencial hídric del sòl (-MPa)", "Soil water potential (-MPa)", "Potencial hídrico del suelo (-MPa)",
+  "Psi_neg", "Potencial hídric del sòl (-MPa)", "Soil water potential (-MPa)", "Potencial hídrico del suelo (-MPa)",
+  "Psi", "Potencial hídric del sòl (MPa)", "Soil water potential (MPa)", "Potencial hídrico del suelo (MPa)",
   "REW", "Aigua extraïble relativa (%)", "Relative extractable water (%)", "Agua extraible relativa (%)",
   "ELW", "Aigua exportada (mm/dia)", "Exported liquid water (mm/day)", "Agua exportada (mm/día)",
   "Precipitation", "Precipitació (mm/dia)", "Precipitation (mm/day)", "Precipitación (mm/día)",

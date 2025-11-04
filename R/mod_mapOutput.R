@@ -281,7 +281,9 @@ mod_map <- function(
         tooltip = paste0(
           "<p>", .data[["provincia"]], ": ", round(.data[[var_sel]], 2), "</p>"
         ),
-        fake_elevation = 20000 * .data[[var_sel]] / max(.data[[var_sel]], na.rm = TRUE)
+        fake_elevation = 100000 *
+          (abs(.data[[var_sel]]) - min(abs(.data[[var_sel]]), na.rm = TRUE)) /
+          (max(abs(.data[[var_sel]]), na.rm = TRUE) - min(abs(.data[[var_sel]]), na.rm = TRUE))
       )
     shiny::validate(
       shiny::need(

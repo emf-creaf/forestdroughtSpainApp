@@ -325,10 +325,11 @@ mod_ts <- function(
 
     ts_data |>
       dplyr::arrange(date) |>
+      dplyr::mutate(Psi = Psi * (-1)) |>
       echarts4r::e_charts(date) |>
       echarts4r::e_line(
         Psi, symbol = "none",
-        name = translate_app("Psi", lang()),
+        name = translate_app("Psi_neg", lang()),
         lineStyle = list(color = "#4ef0ff"),
         itemStyle = list(color = "#4ef0ff"),
         areaStyle = list(

@@ -52,7 +52,8 @@ echarts_ts_formatter <- function(echart) {
       trigger = "axis", confine = TRUE,
       backgroundColor = "#4444449a",
       borderColor ="#4444449a",
-      textStyle = list(color = "#F8F9FA")
+      textStyle = list(color = "#F8F9FA"),
+      formatter = echarts4r::e_tooltip_pointer_formatter(digits = 3)
     ) |>
     echarts4r::e_datazoom(toolbox = FALSE, type = "inside") |>
     echarts4r::e_group("timeseries") |>
