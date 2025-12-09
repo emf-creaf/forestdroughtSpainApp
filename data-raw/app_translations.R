@@ -17,14 +17,19 @@ app_translations <- tibble::tribble(
   "LAI", "Índex d'àrea foliar (m2/m2)", "Leaf area index (m2/m2)", "Índice de área foliar (m2/m2)",
   "DDS", "Intensitat de l'estrès (%)", "Stress intensity (%)", "Intensidad del estrés (%)",
   "LFMC", "Contingut d'humitat de el combustible viu (%)", "Live Fuel Moisture Content (%)", "Contenido de humedad del combustible vivo (%)",
+  "DFMC", "Contingut d’humitat de combustible mort (%)", "Dead fuel moisture content (%)", "Contendio de humedad de combustible muerto (%)",
+  "SFP", "Potencial foc de superfície [0-9]", "Surface fire potential [0-9]", "Potencial fuego de superficie [0-9]",
+  "CFP", "Potencial foc de capçada [0-9]", "Crown fire potential [0-9]", "Potencial fuego de copa [0-9]",
   # user_inputs
   "map_controls", "Mapa", "Map controls", "Mapa",
   "user_var", "Variable:", "Variable:", "Variable:",
   "user_date", "Data:", "Date:", "Fecha:",
-  "user_agg", "Afegeix per província", "Aggregate by province", "Agregar por provincia",
+  "user_agg", "Agregació:", "Aggregation:", "Agregación:",
   "ts_controls", "Sèries temporals", "Time series controls", "Series temporales",
   "user_ts_type", "Calcular per coordenades", "Calculate for coordinates", "Calcular para coordenadas",
-  "user_province", "Provincia:", "Province:", "Provincia:",
+  "user_province", "Provincies", "Provinces", "Provincias",
+  "user_region", "Comarques", "Regions", "Comarcas",
+  "user_ts_agg", "Selecciona una regió:", "Select a region:", "Selecciona una región:",
   "user_longitude", "Longitud", "Longitude", "Longitud",
   "user_latitude", "Latitud", "Latitude", "Latitud",
   "user_longitude_help", "La longitud ha d'estar entre -9.5 i 4", "Longitude must be between -9.5 and 4", "La longitud debe estar entre -9.5 y 4",
@@ -35,6 +40,10 @@ app_translations <- tibble::tribble(
   "user_info", "Info:", "Info:", "Info:",
   "user_info_p1", "El mapa té una resolució de 2 km²", "Map has a resolution of 2 km²", "El mapa tiene una resolucion de 2 km²",
   "user_info_p2", "Les sèries temporals es calculen a una resolució de 500 m²", "Time series are calculated at a 500 m² resolution", "Las series temporales se calculan a una resolución de 500 m²",
+  # aggregation
+  "cont", "Cap", "None", "Ninguna",
+  "comarca", "Comarques", "Regions", "Comarcas",
+  "provincia", "Provincies", "Provinces", "Provincias",
   # download outputs
   "download_maps_title", "Descarrega de mapas", "Maps download", "Descarga de mapas",
   "download_maps_text", "Els mapes diaris a 500 m² estan disponibles en el repositori de dades públiques de l'EMF.", "Daily maps at 500 m² resolution are available at the public EMF data repository.", "Los mapas diarios a resolucion de 500 m² están disponibles en el repositorio de datos públicos de la EMF.",
@@ -68,20 +77,44 @@ province_names <- arrow::s3_bucket(
 ) |>
   arrow::open_dataset(
     factory_options = list(
-      selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
+      selector_ignore_prefixes = c(
+        "daily_medfateland_bitmaps.parquet",
+        "daily_medfateland_timeseries_comarca.parquet"
+      )
     )
   ) |>
-  dplyr::select(provincia) |>
+  dplyr::select(name) |>
   dplyr::distinct() |>
-  dplyr::arrange(provincia) |>
-  dplyr::pull(provincia, as_vector = TRUE)
+  dplyr::arrange(name) |>
+  dplyr::pull(name, as_vector = TRUE)
+
+region_names <- arrow::s3_bucket(
+  "forestdrought-spain-app-pngs",
+  access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
+  secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
+  scheme = "https",
+  endpoint_override = Sys.getenv("AWS_S3_ENDPOINT"),
+  region = ""
+) |>
+  arrow::open_dataset(
+    factory_options = list(
+      selector_ignore_prefixes = c(
+        "daily_medfateland_bitmaps.parquet",
+        "daily_medfateland_timeseries_provincia.parquet"
+      )
+    )
+  ) |>
+  dplyr::select(name) |>
+  dplyr::distinct() |>
+  dplyr::arrange(name) |>
+  dplyr::pull(name, as_vector = TRUE)
 
 # internal data for package
 usethis::use_data(
   # app_translations
   app_translations,
   # province names
-  province_names,
+  province_names, region_names,
   # opts
   internal = TRUE, overwrite = TRUE
 )

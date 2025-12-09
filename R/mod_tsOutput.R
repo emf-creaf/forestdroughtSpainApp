@@ -23,7 +23,10 @@ mod_tsOutput <- function(id) {
             "AET",
             "LAI",
             "DDS",
-            "LFMC"
+            "LFMC",
+            "DFMC",
+            "SFP",
+            "CFP"
           ),
           \(id) {
             bslib::card(
@@ -69,6 +72,14 @@ mod_ts <- function(
 
   # ts inputs
   output$inputs_ts <- shiny::renderUI({
+    aggregation_choices <- list(
+      "provincia" = province_names,
+      "comarca" = region_names
+    ) |>
+      purrr::set_names(c(
+        translate_app("user_ts_agg", lang()),
+        translate_app("user_region", lang())
+      ))
     # tagList creating the draggable absolute panel
     shiny::tagList(
       # first row of inputs, variable and dates
@@ -86,9 +97,9 @@ mod_ts <- function(
             condition = "input.user_ts_type == false", ns = ns,
             shiny::br(),
             shinyWidgets::pickerInput(
-              ns("user_province"), label = translate_app("user_province", lang()),
-              choices = province_names,
-              selected = province_names[1],
+              ns("user_ts_agg"), label = translate_app("user_ts_agg", lang()),
+              choices = aggregation_choices,
+              selected = aggregation_choices[[1]][1],
               multiple = FALSE,
               options = shinyWidgets::pickerOptions(
                 actionsBox = FALSE,
@@ -136,10 +147,10 @@ mod_ts <- function(
   }) # end of ts inputs ui
 
   # province ts data
-  province_data <- shiny::reactive({
+  aggregation_data <- shiny::reactive({
     # only run when inputs are populated
     shiny::validate(
-      shiny::need(input$user_province, "Missing province")
+      shiny::need(input$user_ts_agg, "Missing province")
     )
 
     # show hostess
@@ -149,7 +160,7 @@ mod_ts <- function(
         hostess_ts$get_loader(),
         shiny::br(),
         shiny::p(glue::glue(
-          "{translate_app('getting_data_for', lang())} {input$user_province}"
+          "{translate_app('getting_data_for', lang())} {input$user_ts_agg}"
         )),
         shiny::p(translate_app("please_wait", lang()))
       ),
@@ -160,7 +171,7 @@ mod_ts <- function(
     hostess_ts$start()
     on.exit(hostess_ts$close(), add = TRUE)
 
-    province_sel <- input$user_province
+    aggregation_sel <- input$user_ts_agg
     # arrow data
     arrow::open_dataset(
       arrow_sink,
@@ -168,17 +179,11 @@ mod_ts <- function(
         selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
       )
     ) |>
-      dplyr::filter(provincia == province_sel) |>
+      dplyr::filter(name == aggregation_sel) |>
       dplyr::as_tibble()
   }) |>
-    shiny::bindCache(
-      # input$user_var,
-      input$user_province,
-      cache = "session"
-    ) |>
-    shiny::bindEvent(
-      input$user_province
-    )
+    shiny::bindCache(input$user_ts_agg, cache = "session") |>
+    shiny::bindEvent(input$user_ts_agg)
 
   # extended task for ts_coords_data, to avoid blocking the app while calculating the
   # time series
@@ -200,7 +205,10 @@ mod_ts <- function(
               avg(ELW) FILTER (NOT isnan(ELW)) AS ELW,
               avg(LAI) FILTER (NOT isnan(LAI)) AS LAI,
               avg(DDS) FILTER (NOT isnan(DDS)) AS DDS,
-              avg(LFMC) FILTER (NOT isnan(LFMC)) AS LFMC
+              avg(LFMC) FILTER (NOT isnan(LFMC)) AS LFMC,
+              avg(DFMC) FILTER (NOT isnan(DFMC)) AS DFMC,
+              avg(SFP) FILTER (NOT isnan(SFP)) AS SFP,
+              avg(CFP) FILTER (NOT isnan(CFP)) AS CFP
             FROM read_parquet('s3://forestdrought-spain-app-data/*/*/*/*.parquet')
             WHERE geometry.x > {coords_bbox[['xmin']]} AND
               geometry.x < {coords_bbox[['xmax']]} AND
@@ -279,7 +287,7 @@ mod_ts <- function(
   #### echarts4r outputs ####
   output$ts_Theta <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -314,7 +322,7 @@ mod_ts <- function(
   })
   output$ts_Psi <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -351,7 +359,7 @@ mod_ts <- function(
   })
   output$ts_REW <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -386,7 +394,7 @@ mod_ts <- function(
   })
   output$ts_ELW <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -421,7 +429,7 @@ mod_ts <- function(
   })
   output$ts_Precipitation <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -456,7 +464,7 @@ mod_ts <- function(
   })
   output$ts_PET <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -491,7 +499,7 @@ mod_ts <- function(
   })
   output$ts_AET <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -526,7 +534,7 @@ mod_ts <- function(
   })
   output$ts_LAI <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -561,7 +569,7 @@ mod_ts <- function(
   })
   output$ts_DDS <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -596,7 +604,7 @@ mod_ts <- function(
   })
   output$ts_LFMC <- echarts4r::renderEcharts4r({
     if (isFALSE(input$user_ts_type)) {
-      ts_data <- province_data()
+      ts_data <- aggregation_data()
     } else {
       shiny::validate(
         shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
@@ -629,6 +637,111 @@ mod_ts <- function(
       ) |>
       echarts_ts_formatter()
   })
+  output$ts_DFMC <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- aggregation_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        DFMC, symbol = "none",
+        name = translate_app("DFMC", lang()),
+        lineStyle = list(color = "#ff9b9b"),
+        itemStyle = list(color = "#ff9b9b"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#ff9b9b"),
+              list(offset = 0.25, color = "#ff4954"),
+              list(offset = 0.5, color = "#d40024"),
+              list(offset = 0.75, color = "#96000d"),
+              list(offset = 1, color = "#5b0000")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_SFP <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- aggregation_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        SFP, symbol = "none",
+        name = translate_app("SFP", lang()),
+        lineStyle = list(color = "#ff9b9b"),
+        itemStyle = list(color = "#ff9b9b"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#ff9b9b"),
+              list(offset = 0.25, color = "#ff4954"),
+              list(offset = 0.5, color = "#d40024"),
+              list(offset = 0.75, color = "#96000d"),
+              list(offset = 1, color = "#5b0000")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
+  output$ts_CFP <- echarts4r::renderEcharts4r({
+    if (isFALSE(input$user_ts_type)) {
+      ts_data <- aggregation_data()
+    } else {
+      shiny::validate(
+        shiny::need(ts_coords_data$result(), "No time series data yet, press the button")
+      )
+      ts_data <- ts_coords_data$result() |>
+        purrr::list_rbind()
+    }
+
+    ts_data |>
+      dplyr::arrange(date) |>
+      echarts4r::e_charts(date) |>
+      echarts4r::e_line(
+        CFP, symbol = "none",
+        name = translate_app("CFP", lang()),
+        lineStyle = list(color = "#ff9b9b"),
+        itemStyle = list(color = "#ff9b9b"),
+        areaStyle = list(
+          color = list(
+            type = "linear", x = 0, y = 0, x2 = 0, y2 = 1,
+            colorStops = list(
+              list(offset = 0, color = "#ff9b9b"),
+              list(offset = 0.25, color = "#ff4954"),
+              list(offset = 0.5, color = "#d40024"),
+              list(offset = 0.75, color = "#96000d"),
+              list(offset = 1, color = "#5b0000")
+            )
+          ),
+          opacity = 0.7
+        )
+      ) |>
+      echarts_ts_formatter()
+  })
 
   # download button logic
   output$download_ts_button <- shiny::downloadHandler(
@@ -638,9 +751,9 @@ mod_ts <- function(
     content = function(file) {
       if (isFALSE(input$user_ts_type)) {
         shiny::validate(
-          shiny::need(province_data(), "no provinces data yet")
+          shiny::need(aggregation_data(), "no provinces data yet")
         )
-        province_data() |>
+        aggregation_data() |>
           write.csv(file)
       } else {
         shiny::validate(
