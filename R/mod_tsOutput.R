@@ -77,7 +77,7 @@ mod_ts <- function(
       "comarca" = region_names
     ) |>
       purrr::set_names(c(
-        translate_app("user_ts_agg", lang()),
+        translate_app("user_province", lang()),
         translate_app("user_region", lang())
       ))
     # tagList creating the draggable absolute panel
@@ -746,7 +746,7 @@ mod_ts <- function(
   # download button logic
   output$download_ts_button <- shiny::downloadHandler(
     filename = glue::glue(
-      "meteoland_timeseries_{format(Sys.time(), '%Y%m%d%H%M%S')}.csv"
+      "forestdrought_timeseries_{format(Sys.time(), '%Y%m%d%H%M%S')}.csv"
     ),
     content = function(file) {
       if (isFALSE(input$user_ts_type)) {
