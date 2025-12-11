@@ -3,7 +3,7 @@ app_translations <- tibble::tribble(
   ~text_id, ~translation_cat, ~translation_eng, ~translation_spa,
   # tabs translations
   "main_tab_translation", "Mapa diari", "Daily map", "Mapa diario",
-  "ts_tab_translation", "Sèries temporals", "Timeseries", "Series temporales",
+  "ts_tab_translation", "Sèries temporals", "Time series", "Series temporales",
   "tech_specs_tab_translation", "Especificacions tècniques", "Technical specifications", "Especificaciones técnicas",
   # variables
   "Theta", "Contingut d'humitat (m3/m3)", "Soil moisture content (m3/m3)", "Contenido de humedad del suelo (m3/m3)",
@@ -28,8 +28,8 @@ app_translations <- tibble::tribble(
   "ts_controls", "Sèries temporals", "Time series controls", "Series temporales",
   "user_ts_type", "Calcular per coordenades", "Calculate for coordinates", "Calcular para coordenadas",
   "user_province", "Provincies", "Provinces", "Provincias",
-  "user_region", "Comarques", "Regions", "Comarcas",
-  "user_ts_agg", "Selecciona una regió:", "Select a region:", "Selecciona una región:",
+  "user_region", "Comarques", "Counties", "Comarcas",
+  "user_ts_agg", "Selecciona una provincia o regió:", "Select a province or county:", "Selecciona una provincia o comarca:",
   "user_longitude", "Longitud", "Longitude", "Longitud",
   "user_latitude", "Latitud", "Latitude", "Latitud",
   "user_longitude_help", "La longitud ha d'estar entre -9.5 i 4", "Longitude must be between -9.5 and 4", "La longitud debe estar entre -9.5 y 4",
@@ -42,7 +42,7 @@ app_translations <- tibble::tribble(
   "user_info_p2", "Les sèries temporals es calculen a una resolució de 500 m²", "Time series are calculated at a 500 m² resolution", "Las series temporales se calculan a una resolución de 500 m²",
   # aggregation
   "cont", "Cap", "None", "Ninguna",
-  "comarca", "Comarques", "Regions", "Comarcas",
+  "comarca", "Comarques", "Counties", "Comarcas",
   "provincia", "Provincies", "Provinces", "Provincias",
   # download outputs
   "download_maps_title", "Descarrega de mapas", "Maps download", "Descarga de mapas",
