@@ -27,12 +27,6 @@ forestdrought_spain_app <- function() {
     )
   )
 
-  shiny::onStop(function() {
-    mirai::everywhere({DBI::dbDisconnect(duckdb_proxy)})
-    mirai::daemons(0)
-    DBI::dbDisconnect(duckdb_conn)
-  })
-
   #### JS scripts needed ####
 
   #### UI ####
@@ -162,6 +156,15 @@ forestdrought_spain_app <- function() {
     DBI::dbExecute(duckdb_conn, install_spatial_statement)
     DBI::dbExecute(duckdb_conn, spatial_statement)
     DBI::dbExecute(duckdb_conn, credentials_statement)
+
+    # on app exit close any mirai daemon
+    shiny::onStop(function() {
+      DBI::dbDisconnect(duckdb_conn)
+      if (!is.null(mirai::info())) {
+        mirai::everywhere({DBI::dbDisconnect(duckdb_proxy)})
+        mirai::daemons(0)
+      }
+    })
 
     # modules
     map_reactives <- shiny::callModule(
