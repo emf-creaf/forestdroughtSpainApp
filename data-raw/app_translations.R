@@ -29,6 +29,7 @@ app_translations <- tibble::tribble(
   "user_ts_type", "Calcular per coordenades", "Calculate for coordinates", "Calcular para coordenadas",
   "user_province", "Provincies", "Provinces", "Provincias",
   "user_region", "Comarques", "Counties", "Comarcas",
+  "user_municipality", "Municipis", "Municipalities", "Municipios",
   "user_ts_agg", "Selecciona una provincia o regió:", "Select a province or county:", "Selecciona una provincia o comarca:",
   "user_longitude", "Longitud", "Longitude", "Longitud",
   "user_latitude", "Latitud", "Latitude", "Latitud",
@@ -44,6 +45,7 @@ app_translations <- tibble::tribble(
   "cont", "Cap", "None", "Ninguna",
   "comarca", "Comarques", "Counties", "Comarcas",
   "provincia", "Provincies", "Provinces", "Provincias",
+  "municipio", "Municipis", "Municipalities", "Municipios",
   # download outputs
   "download_maps_title", "Descarrega de mapas", "Maps download", "Descarga de mapas",
   "download_maps_text", "Els mapes diaris a 500 m² estan disponibles en el repositori de dades públiques de l'EMF.", "Daily maps at 500 m² resolution are available at the public EMF data repository.", "Los mapas diarios a resolucion de 500 m² están disponibles en el repositorio de datos públicos de la EMF.",
@@ -67,7 +69,7 @@ app_translations <- tibble::tribble(
   "", "", "", ""
 )
 
-province_names <- arrow::s3_bucket(
+province_dict <- arrow::s3_bucket(
   "forestdrought-spain-app-pngs",
   access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
   secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
@@ -79,42 +81,87 @@ province_names <- arrow::s3_bucket(
     factory_options = list(
       selector_ignore_prefixes = c(
         "daily_medfateland_bitmaps.parquet",
+        "daily_medfateland_timeseries_comarca.parquet",
+        "daily_medfateland_timeseries_municipio.parquet"
+      )
+    )
+  ) |>
+  dplyr::select(name, province_code) |>
+  dplyr::distinct() |>
+  dplyr::arrange(name) |>
+  dplyr::collect()
+
+province_metadata <- province_dict |>
+  dplyr::mutate(
+    metadata = paste(name, province_code, "provincia", sep = "_")
+  ) |>
+  dplyr::pull(metadata)
+
+region_metadata <- arrow::s3_bucket(
+  "forestdrought-spain-app-pngs",
+  access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
+  secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
+  scheme = "https",
+  endpoint_override = Sys.getenv("AWS_S3_ENDPOINT"),
+  region = ""
+) |>
+  arrow::open_dataset(
+    factory_options = list(
+      selector_ignore_prefixes = c(
+        "daily_medfateland_bitmaps.parquet",
+        "daily_medfateland_timeseries_provincia.parquet",
+        "daily_medfateland_timeseries_municipio.parquet"
+      )
+    )
+  ) |>
+  dplyr::select(name, province_code) |>
+  dplyr::distinct() |>
+  dplyr::arrange(name) |>
+  dplyr::mutate(
+    metadata = paste(name, province_code, "comarca", sep = "_")
+  ) |>
+  dplyr::pull(metadata, as_vector = TRUE)
+
+region_names <- glue::glue("{stringr::str_split_i(region_metadata, '_', 1)} ({forestdroughtSpainApp:::get_province_from_code(stringr::str_split_i(region_metadata, '_', 2))})")
+
+municipality_metadata <- arrow::s3_bucket(
+  "forestdrought-spain-app-pngs",
+  access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
+  secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
+  scheme = "https",
+  endpoint_override = Sys.getenv("AWS_S3_ENDPOINT"),
+  region = ""
+) |>
+  arrow::open_dataset(
+    factory_options = list(
+      selector_ignore_prefixes = c(
+        "daily_medfateland_bitmaps.parquet",
+        "daily_medfateland_timeseries_provincia.parquet",
         "daily_medfateland_timeseries_comarca.parquet"
       )
     )
   ) |>
-  dplyr::select(name) |>
+  dplyr::select(name, province_code) |>
   dplyr::distinct() |>
   dplyr::arrange(name) |>
-  dplyr::pull(name, as_vector = TRUE)
-
-region_names <- arrow::s3_bucket(
-  "forestdrought-spain-app-pngs",
-  access_key = Sys.getenv("AWS_ACCESS_KEY_ID"),
-  secret_key = Sys.getenv("AWS_SECRET_ACCESS_KEY"),
-  scheme = "https",
-  endpoint_override = Sys.getenv("AWS_S3_ENDPOINT"),
-  region = ""
-) |>
-  arrow::open_dataset(
-    factory_options = list(
-      selector_ignore_prefixes = c(
-        "daily_medfateland_bitmaps.parquet",
-        "daily_medfateland_timeseries_provincia.parquet"
-      )
-    )
+  dplyr::mutate(
+    metadata = paste(name, province_code, "municipio", sep = "_")
   ) |>
-  dplyr::select(name) |>
-  dplyr::distinct() |>
-  dplyr::arrange(name) |>
-  dplyr::pull(name, as_vector = TRUE)
+  dplyr::pull(metadata, as_vector = TRUE)
+
+municipality_names <- glue::glue("{stringr::str_split_i(municipality_metadata, '_', 1)} ({forestdroughtSpainApp:::get_province_from_code(stringr::str_split_i(municipality_metadata, '_', 2))})")
 
 # internal data for package
 usethis::use_data(
   # app_translations
   app_translations,
-  # province names
-  province_names, region_names,
+  # agg names
+  province_metadata,
+  region_metadata,
+  region_names,
+  municipality_metadata,
+  municipality_names,
+  province_dict,
   # opts
   internal = TRUE, overwrite = TRUE
 )

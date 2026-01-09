@@ -48,7 +48,7 @@ mod_tsOutput <- function(id) {
 #' @param input internal
 #' @param output internal
 #' @param session internal
-#' @param arrow_sink bucket s3 filesystem
+#' @param duckdb_conn duckdb_conn
 #' @param lang lang selected
 #'
 #' @export
@@ -56,7 +56,7 @@ mod_tsOutput <- function(id) {
 #' @rdname mod_tsOutput
 mod_ts <- function(
   input, output, session,
-  arrow_sink,
+  duckdb_conn,
   lang
 ) {
   # get the ns
@@ -73,12 +73,16 @@ mod_ts <- function(
   # ts inputs
   output$inputs_ts <- shiny::renderUI({
     aggregation_choices <- list(
-      "provincia" = province_names,
-      "comarca" = region_names
+      "provincia" = purrr::set_names(province_metadata, stringr::str_split_i(province_metadata, "_", 1)),
+      # municipio and comarca has names already generated to include province for
+      # extra info (and disambiguation in the case of the munis)
+      "comarca" = purrr::set_names(region_metadata, region_names),
+      "municipio" = purrr::set_names(municipality_metadata, municipality_names)
     ) |>
       purrr::set_names(c(
         translate_app("user_province", lang()),
-        translate_app("user_region", lang())
+        translate_app("user_region", lang()),
+        translate_app("user_municipality", lang())
       ))
     # tagList creating the draggable absolute panel
     shiny::tagList(
@@ -103,7 +107,8 @@ mod_ts <- function(
               multiple = FALSE,
               options = shinyWidgets::pickerOptions(
                 actionsBox = FALSE,
-                tickIcon = "glyphicon-ok-sign"
+                tickIcon = "glyphicon-ok-sign",
+                liveSearch = TRUE, liveSearchNormalize = TRUE
               )
             )
           ),
@@ -150,8 +155,13 @@ mod_ts <- function(
   aggregation_data <- shiny::reactive({
     # only run when inputs are populated
     shiny::validate(
-      shiny::need(input$user_ts_agg, "Missing province")
+      shiny::need(input$user_ts_agg, "Missing admin div")
     )
+
+    aggregation_sel <- input$user_ts_agg
+    agg_name <- stringr::str_split_i(aggregation_sel, "_", 1)
+    agg_province <- stringr::str_split_i(aggregation_sel, "_", 2)
+    agg_level <- stringr::str_split_i(aggregation_sel, "_", 3)
 
     # show hostess
     waiter_ts <- waiter::Waiter$new(
@@ -160,7 +170,7 @@ mod_ts <- function(
         hostess_ts$get_loader(),
         shiny::br(),
         shiny::p(glue::glue(
-          "{translate_app('getting_data_for', lang())} {input$user_ts_agg}"
+          "{translate_app('getting_data_for', lang())} {agg_name} ({translate_app(agg_level, lang())})"
         )),
         shiny::p(translate_app("please_wait", lang()))
       ),
@@ -171,15 +181,14 @@ mod_ts <- function(
     hostess_ts$start()
     on.exit(hostess_ts$close(), add = TRUE)
 
-    aggregation_sel <- input$user_ts_agg
-    # arrow data
-    arrow::open_dataset(
-      arrow_sink,
-      factory_options = list(
-        selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
-      )
-    ) |>
-      dplyr::filter(name == aggregation_sel) |>
+    # duckdb query
+    date_query <- glue::glue("
+      SELECT *
+      FROM read_parquet('s3://forestdrought-spain-app-pngs/daily_medfateland_timeseries_*.parquet')
+      WHERE name = '{agg_name}' AND province_code = '{agg_province}' AND admin_level = '{agg_level}'
+        AND date > '{as.character(Sys.Date() - 371)}';
+    ")
+    DBI::dbGetQuery(duckdb_conn, date_query) |>
       dplyr::as_tibble()
   }) |>
     shiny::bindCache(input$user_ts_agg, cache = "session") |>
@@ -189,6 +198,47 @@ mod_ts <- function(
   # time series
   ts_coords_data <- shiny::ExtendedTask$new(
     \(...) {
+      # Mirai daemons
+      mirai::daemons(6)
+      mirai::everywhere({
+        library(DBI)
+        library(duckdb)
+        # db preparation
+        duckdb_proxy <<- DBI::dbConnect(duckdb::duckdb())
+        # withr::defer(DBI::dbDisconnect(duckdb_proxy))
+        install_httpfs_statement <- glue::glue_sql(
+          .con = duckdb_proxy,
+          "INSTALL httpfs;"
+        )
+        httpfs_statement <- glue::glue_sql(
+          .con = duckdb_proxy,
+          "LOAD httpfs;"
+        )
+        install_spatial_statement <- glue::glue_sql(
+          .con = duckdb_proxy,
+          "INSTALL spatial;"
+        )
+        spatial_statement <- glue::glue_sql(
+          .con = duckdb_proxy,
+          "LOAD spatial;"
+        )
+        credentials_statement <- glue::glue(
+          "CREATE OR REPLACE SECRET secret (
+            TYPE s3,
+            PROVIDER config,
+            KEY_ID '{Sys.getenv('AWS_ACCESS_KEY_ID')}',
+            SECRET '{Sys.getenv('AWS_SECRET_ACCESS_KEY')}',
+            REGION '',
+            ENDPOINT '{Sys.getenv('AWS_S3_ENDPOINT')}'
+          );"
+        )
+        DBI::dbExecute(duckdb_proxy, install_httpfs_statement)
+        DBI::dbExecute(duckdb_proxy, httpfs_statement)
+        DBI::dbExecute(duckdb_proxy, install_spatial_statement)
+        DBI::dbExecute(duckdb_proxy, spatial_statement)
+        DBI::dbExecute(duckdb_proxy, credentials_statement)
+      })
+
       mirai::mirai_map(
         1L:12L,
         \(month_to_query) {
@@ -214,7 +264,8 @@ mod_ts <- function(
               geometry.x < {coords_bbox[['xmax']]} AND
               geometry.y > {coords_bbox[['ymin']]} AND
               geometry.y < {coords_bbox[['ymax']]} AND
-              month = {month_to_query}
+              month = {month_to_query} AND
+              date > '{as.character(Sys.Date() - 371)}'
             GROUP BY date
             ;
           ")

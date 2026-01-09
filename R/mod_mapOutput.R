@@ -24,7 +24,7 @@ mod_mapOutput <- function(id) {
 #' @param input internal
 #' @param output internal
 #' @param session internal
-#' @param arrow_sink bucket s3 filesystem
+#' @param duckdb_conn duckdb_conn
 #' @param lang lang selected
 #'
 #' @export
@@ -32,7 +32,7 @@ mod_mapOutput <- function(id) {
 #' @rdname mod_mapOutput
 mod_map <- function(
   input, output, session,
-  arrow_sink,
+  duckdb_conn,
   lang
 ) {
   # get the ns
@@ -76,9 +76,10 @@ mod_map <- function(
       as.Date(format = '%j', origin = as.Date('1970-01-01')) |>
       as.character()
 
-    user_aggregation_choices <- c("cont", "comarca", "provincia") |>
+    user_aggregation_choices <-
+      c("cont", "municipio", "comarca", "provincia") |>
       purrr::set_names(translate_app(
-        c("cont", "comarca", "provincia"),
+        c("cont", "municipio", "comarca", "provincia"),
         lang()
       ))
 
@@ -199,30 +200,29 @@ mod_map <- function(
       as.character() |>
       stringr::str_remove_all("-")
 
-    # arrow data
-    arrow::open_dataset(
-      arrow_sink,
-      factory_options = list(
-        selector_ignore_prefixes = c("daily_medfateland_timeseries")
-      )
-    ) |>
-      dplyr::filter(date == date_sel) |>
+    # duckdb query
+    date_query <- glue::glue("
+      SELECT *
+      FROM read_parquet('s3://forestdrought-spain-app-pngs/daily_medfateland_bitmaps.parquet')
+      WHERE date = '{date_sel}';
+    ")
+    DBI::dbGetQuery(duckdb_conn, date_query) |>
       dplyr::as_tibble()
   }) |>
-    shiny::bindCache(
-      # input$user_var,
-      input$user_date,
-      cache = "session"
-    ) |>
-    shiny::bindEvent(
-      # input$user_var,
-      input$user_date
-    )
+    shiny::bindCache(input$user_date, cache = "session") |>
+    shiny::bindEvent(input$user_date)
 
   # update the polygon data when input date changes
   aggregation_data <- shiny::reactive({
     # only run when inputs are populated
-    shiny::validate(shiny::need(input$user_date, "Missing date"))
+    shiny::validate(
+      shiny::need(input$user_date, "Missing date"),
+      shiny::need(input$user_agg, "Missing aggregation")
+    )
+
+    if (input$user_agg == "cont") {
+      return(dplyr::tibble())
+    }
 
     # show hostess
     waiter_map <- waiter::Waiter$new(
@@ -242,18 +242,12 @@ mod_map <- function(
     hostess_polys$start()
     on.exit(hostess_polys$close(), add = TRUE)
 
-    # needed inputs
-    # var_sel <- input$user_var
-    date_sel <- input$user_date
-
-    # arrow data
-    arrow::open_dataset(
-      arrow_sink,
-      factory_options = list(
-        selector_ignore_prefixes = c("daily_medfateland_bitmaps.parquet")
-      )
-    ) |>
-      dplyr::filter(date == date_sel) |>
+    date_query <- glue::glue("
+      SELECT *
+      FROM read_parquet('s3://forestdrought-spain-app-pngs/daily_medfateland_timeseries_*.parquet')
+      WHERE date = '{as.character(input$user_date)}';
+    ")
+    DBI::dbGetQuery(duckdb_conn, date_query) |>
       dplyr::as_tibble() |>
       sf::st_as_sf(wkt = "geom", crs = 25830) |>
       sf::st_transform(crs = 4326)
@@ -290,24 +284,7 @@ mod_map <- function(
         na.color = "#FFFFFF00", reverse = reverse, alpha = TRUE
       )(var_sel)
     }
-    aggregation_sel <- aggregation_data() |>
-      dplyr::select(dplyr::any_of(c(var_sel, "name", "admin_level", "geom"))) |>
-      dplyr::mutate(
-        hex = palette_fun(.data[[var_sel]]),
-        tooltip = paste0(
-          "<p>", .data[["name"]], ": ", round(.data[[var_sel]], 2), "</p>"
-        ),
-        fake_elevation = 100000 *
-          (abs(.data[[var_sel]]) - min(abs(.data[[var_sel]]), na.rm = TRUE)) /
-          (max(abs(.data[[var_sel]]), na.rm = TRUE) - min(abs(.data[[var_sel]]), na.rm = TRUE))
-      )
-    shiny::validate(
-      shiny::need(
-        validate_rows_with_alert(aggregation_sel, lang),
-        "no data for date and var selected"
-      )
-    )
-
+    
     # branching depending on aggregation selected
     if (agg_sel == "cont") {
       # create the custom legend to show with the bitmap
@@ -349,8 +326,25 @@ mod_map <- function(
         ) |>
         mapdeck::add_legend(legend = legend_js, layer_id = "custom_legend")
     } else {
-      aggregation_sel_admin <- aggregation_sel |>
-        dplyr::filter(admin_level == agg_sel)
+      aggregation_sel_admin <- aggregation_data() |>
+        dplyr::filter(admin_level == agg_sel) |>
+        dplyr::select(dplyr::any_of(c(var_sel, "name", "admin_level", "geom"))) |>
+        dplyr::mutate(
+          hex = palette_fun(.data[[var_sel]]),
+          tooltip = paste0(
+            "<p>", .data[["name"]], ": ", round(.data[[var_sel]], 2), "</p>"
+          ),
+          fake_elevation = 100000 *
+            (abs(.data[[var_sel]]) - min(abs(.data[[var_sel]]), na.rm = TRUE)) /
+            (max(abs(.data[[var_sel]]), na.rm = TRUE) - min(abs(.data[[var_sel]]), na.rm = TRUE))
+        )
+      shiny::validate(
+        shiny::need(
+          validate_rows_with_alert(aggregation_sel_admin, lang),
+          "no data for date and var selected"
+        )
+      )
+
       # create the custom legend to show with the bitmap
       legend_js <- mapdeck::legend_element(
         variables = rev(round(seq(

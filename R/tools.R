@@ -88,3 +88,15 @@ validate_rows_with_alert <- function(reactive_data, lang) {
   # return TRUE or FALSE for shiny::need
   return(nrow(reactive_data) > 0)
 }
+
+get_province_from_code <- function(codes) {
+  purrr::map_chr(
+    codes,
+    \(code) {
+      province_dict |>
+        dplyr::filter(province_code == code) |>
+        dplyr::pull(name) |>
+        unique()
+    }
+  )
+}
