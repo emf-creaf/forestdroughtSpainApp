@@ -334,9 +334,10 @@ mod_map <- function(
           tooltip = paste0(
             "<p>", .data[["name"]], ": ", round(.data[[var_sel]], 2), "</p>"
           ),
+          fake_elevation = .data[[var_sel]] + abs(min(.data[[var_sel]], na.rm = TRUE)),
           fake_elevation = 100000 *
-            (abs(.data[[var_sel]]) - min(abs(.data[[var_sel]]), na.rm = TRUE)) /
-            (max(abs(.data[[var_sel]]), na.rm = TRUE) - min(abs(.data[[var_sel]]), na.rm = TRUE))
+            (fake_elevation - min(fake_elevation, na.rm = TRUE)) /
+            (max(fake_elevation, na.rm = TRUE) - min(fake_elevation, na.rm = TRUE))
         )
       shiny::validate(
         shiny::need(
