@@ -119,14 +119,14 @@ mod_ts <- function(
             shiny::numericInput(
               ns("user_longitude"), translate_app("user_longitude", lang()),
               value = -3.034,
-              min = -9.500, max = 4, step = 0.100,
+              min = -9.500, max = 4, step = 0.001,
               updateOn = "blur"
             ),
             # user_latitude
             shiny::numericInput(
               ns("user_latitude"), translate_app("user_latitude", lang()),
               value = 43.216,
-              min = 35.500, max = 44, step = 0.100,
+              min = 35.500, max = 44, step = 0.001,
               updateOn = "blur"
             ),
             # user_ts_calculate
