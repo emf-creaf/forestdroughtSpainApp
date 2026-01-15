@@ -36,7 +36,6 @@ forestdrought_spain_app <- function() {
       # initializations
       waiter::use_waiter(),
       waiter::use_hostess(),
-      shinyjs::useShinyjs(),
       # js scripts,
       shiny::includeScript(
         system.file("resources", "js", "matomo.js", package = "forestdroughtSpainApp")
