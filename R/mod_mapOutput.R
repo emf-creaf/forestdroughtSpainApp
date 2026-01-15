@@ -13,6 +13,7 @@ mod_mapOutput <- function(id) {
       mapdeck::mapdeckOutput(ns("output_map"), width = "100%", height = "600px"),
       sidebar = bslib::sidebar(
         shiny::uiOutput(ns('inputs_map')),
+        width = 350,
         class = "inputs_map",
         open = list(desktop = "open", mobile = "always-above")
       )
@@ -86,7 +87,16 @@ mod_map <- function(
     # tagList creating the draggable absolute panel
     shiny::tagList(
       # first row of inputs, variable and dates
-      shiny::h4(translate_app("map_controls", lang())),
+      shiny::h4(translate_app("map_controls", lang())) |>
+        add_help(
+          title = translate_app("map_help", lang()),
+          content = shiny::includeMarkdown(
+            system.file(
+              'resources', paste0("help_map_", lang(), ".md"),
+              package = 'forestdroughtSpainApp'
+            )
+          )
+        ),
       shiny::br(),
       shiny::fluidRow(
         shiny::column(

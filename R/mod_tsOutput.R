@@ -37,6 +37,7 @@ mod_tsOutput <- function(id) {
       ),
       sidebar = bslib::sidebar(
         shiny::uiOutput(ns('inputs_ts')),
+        width = 350,
         class = "inputs_ts",
         open = list(desktop = "open", mobile = "always-above")
       )
@@ -77,7 +78,10 @@ mod_ts <- function(
       # municipio and comarca has names already generated to include province for
       # extra info (and disambiguation in the case of the munis)
       "comarca" = purrr::set_names(region_metadata, region_names),
-      "municipio" = purrr::set_names(municipality_metadata, municipality_names)
+      "municipio" = purrr::set_names(
+        municipality_metadata,
+        stringr::str_trunc(municipality_names, 35)
+      )
     ) |>
       purrr::set_names(c(
         translate_app("user_province", lang()),
@@ -87,7 +91,16 @@ mod_ts <- function(
     # tagList creating the draggable absolute panel
     shiny::tagList(
       # first row of inputs, variable and dates
-      shiny::h4(translate_app("ts_controls", lang())),
+      shiny::h4(translate_app("ts_controls", lang())) |>
+        add_help(
+          title = translate_app("ts_help", lang()),
+          content = shiny::includeMarkdown(
+            system.file(
+              'resources', paste0("help_ts_", lang(), ".md"),
+              package = 'forestdroughtSpainApp'
+            )
+          )
+        ),
       shiny::br(),
       shiny::fluidRow(
         shiny::column(

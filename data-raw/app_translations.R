@@ -30,7 +30,7 @@ app_translations <- tibble::tribble(
   "user_province", "Provincies", "Provinces", "Provincias",
   "user_region", "Comarques", "Counties", "Comarcas",
   "user_municipality", "Municipis", "Municipalities", "Municipios",
-  "user_ts_agg", "Selecciona una provincia o regió:", "Select a province or county:", "Selecciona una provincia o comarca:",
+  "user_ts_agg", "Selecciona una regió:", "Select a region:", "Selecciona una región:",
   "user_longitude", "Longitud", "Longitude", "Longitud",
   "user_latitude", "Latitud", "Latitude", "Latitud",
   "user_longitude_help", "La longitud ha d'estar entre -9.5 i 4", "Longitude must be between -9.5 and 4", "La longitud debe estar entre -9.5 y 4",
@@ -65,6 +65,10 @@ app_translations <- tibble::tribble(
   "alert_no_data_text", "per a la combinació de data i variable seleccionada", "for the selected combination of date and variable", "para la combinación de fecha y variable seleccionada",
   "alert_no_data_title", "Sense dades", "No data", "Sin datos",
   "alert_dismiss", "Tancar", "Dismiss", "Cerrar",
+  # help dialogs
+  "dismiss", "Tancar", "Dismiss", "Cerrar",
+  "map_help", "Ajuda mapa diari", "Map help", "Ayuda mapa diario",
+  "ts_help", "Ajuda sèries temporals", "Time series help", "Ayuda series temporales",
   # emty string
   "", "", "", ""
 )
