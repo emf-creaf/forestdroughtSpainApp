@@ -294,7 +294,53 @@ mod_map <- function(
         na.color = "#FFFFFF00", reverse = reverse, alpha = TRUE
       )(var_sel)
     }
-    
+
+    raster_legend_colours <- scales::col_numeric(
+      c(
+        "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
+        "#9AAABA", "#4B8AA1", "#007490", "#006584"
+      ),
+      c(bitmap_sel[["min_value"]], bitmap_sel[["max_value"]]),
+      na.color = "#FFFFFF00", reverse = !reverse, alpha = TRUE
+    )(seq(
+      bitmap_sel[["min_value"]],
+      bitmap_sel[["max_value"]],
+      length.out = 5
+    ))
+
+    if (var_sel == "Psi") {
+      browser()
+      palette_fun <- function(var_sel) {
+        scales::col_numeric(
+          scales::gradient_n_pal(
+            c(
+              "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
+              "#9AAABA", "#4B8AA1", "#007490", "#006584"
+            ),
+            c(0, 0.45, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1)
+          ),
+          c(min(var_sel, na.rm = TRUE), max(var_sel, na.rm = TRUE)),
+          na.color = "#FFFFFF00", reverse = reverse, alpha = TRUE
+        )(var_sel)
+      }
+
+      raster_legend_colours <- scales::col_numeric(
+        scales::gradient_n_pal(
+          c(
+            "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
+            "#9AAABA", "#4B8AA1", "#007490", "#006584"
+          ),
+          c(0, 0.45, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1)
+        ),
+        c(bitmap_sel[["min_value"]], bitmap_sel[["max_value"]]),
+        na.color = "#FFFFFF00", reverse = !reverse, alpha = TRUE
+      )(seq(
+        bitmap_sel[["min_value"]],
+        bitmap_sel[["max_value"]],
+        length.out = 5
+      ))
+    }
+
     # branching depending on aggregation selected
     if (agg_sel == "cont") {
       # create the custom legend to show with the bitmap
@@ -304,18 +350,7 @@ mod_map <- function(
           bitmap_sel[["max_value"]],
           length.out = 5
         ), 3)),
-        colours = scales::col_numeric(
-          c(
-            "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
-            "#9AAABA", "#4B8AA1", "#007490", "#006584"
-          ),
-          c(bitmap_sel[["min_value"]], bitmap_sel[["max_value"]]),
-          na.color = "#FFFFFF00", reverse = !reverse, alpha = TRUE
-        )(seq(
-          bitmap_sel[["min_value"]],
-          bitmap_sel[["max_value"]],
-          length.out = 5
-        )),
+        colours = raster_legend_colours,
         colour_type = "fill", variable_type = "gradient",
         title = glue::glue(
           "{translate_app(input$user_var, lang())} - {input$user_date}"
@@ -356,17 +391,27 @@ mod_map <- function(
         )
       )
 
-      # create the custom legend to show with the bitmap
-      legend_js <- mapdeck::legend_element(
-        variables = rev(round(seq(
-          min(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
-          max(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
-          length.out = 5
-        ), 3)),
-        colours = scales::col_numeric(
-          c(
-            "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
-            "#9AAABA", "#4B8AA1", "#007490", "#006584"
+      polygons_legend_colours <- scales::col_numeric(
+        c(
+          "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
+          "#9AAABA", "#4B8AA1", "#007490", "#006584"
+        ),
+        c(min(aggregation_sel_admin[[var_sel]], na.rm = TRUE), max(aggregation_sel_admin[[var_sel]], na.rm = TRUE)),
+        na.color = "#FFFFFF00", reverse = !reverse, alpha = TRUE
+      )(seq(
+        min(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
+        max(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
+        length.out = 5
+      ))
+
+      if (var_sel == "Psi") {
+        polygons_legend_colours <- scales::col_numeric(
+          scales::gradient_n_pal(
+            c(
+              "#FF0D50", "#FB7C82", "#FEABAC", "#FFD7D7", "#F2EFF2",
+              "#9AAABA", "#4B8AA1", "#007490", "#006584"
+            ),
+            c(0, 0.45, 0.65, 0.75, 0.8, 0.85, 0.9, 0.95, 1)
           ),
           c(min(aggregation_sel_admin[[var_sel]], na.rm = TRUE), max(aggregation_sel_admin[[var_sel]], na.rm = TRUE)),
           na.color = "#FFFFFF00", reverse = !reverse, alpha = TRUE
@@ -374,7 +419,17 @@ mod_map <- function(
           min(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
           max(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
           length.out = 5
-        )),
+        ))
+      }
+
+      # create the custom legend to show with the bitmap
+      legend_js <- mapdeck::legend_element(
+        variables = rev(round(seq(
+          min(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
+          max(aggregation_sel_admin[[var_sel]], na.rm = TRUE),
+          length.out = 5
+        ), 3)),
+        colours = polygons_legend_colours,
         colour_type = "fill", variable_type = "gradient",
         title = glue::glue(
           "{translate_app(input$user_var, lang())} - {input$user_date}"
