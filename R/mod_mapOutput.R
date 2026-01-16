@@ -309,7 +309,6 @@ mod_map <- function(
     ))
 
     if (var_sel == "Psi") {
-      browser()
       palette_fun <- function(var_sel) {
         scales::col_numeric(
           scales::gradient_n_pal(
