@@ -1,6 +1,7 @@
 var _paq = window._paq = window._paq || [];
 _paq.push(['trackPageView']);
 _paq.push(['enableLinkTracking']);
+_paq.push(['enableHeartBeatTimer']);
 (function() {
   var u='https://stats-emf.creaf.cat/';
   _paq.push(['setTrackerUrl', u+'matomo.php']);
