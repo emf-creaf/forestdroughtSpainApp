@@ -332,3 +332,8 @@ footer>div.row {
 #map_absolute_inputs {
   z-index: 9999;
 }
+
+/* bslib sidebar resizable text */
+.visually-hidden {
+  display: none;
+}
