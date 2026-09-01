@@ -252,6 +252,8 @@ mod_ts <- function(
         DBI::dbExecute(duckdb_proxy, credentials_statement)
       })
 
+      browser()
+
       mirai::mirai_map(
         1L:12L,
         \(month_to_query) {

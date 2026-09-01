@@ -48,7 +48,7 @@ app_translations <- tibble::tribble(
   "municipio", "Municipis", "Municipalities", "Municipios",
   # download outputs
   "download_maps_title", "Descarrega de mapas", "Maps download", "Descarga de mapas",
-  "download_maps_text", "Els mapes diaris a 500 m² estan disponibles en el repositori de dades públiques de l'EMF.", "Daily maps at 500 m² resolution are available at the public EMF data repository.", "Los mapas diarios a resolucion de 500 m² están disponibles en el repositorio de datos públicos de la EMF.",
+  "download_maps_text", "Els mapes diaris a 0,25 km² estan disponibles en el repositori de dades públiques de l'EMF.", "Daily maps at 0,25 km² resolution are available at the public EMF data repository.", "Los mapas diarios a resolucion de 0,25 km² están disponibles en el repositorio de datos públicos de la EMF.",
   "download_maps_link", "Repositori de mapes", "Map files repository", "Repositorio de mapas",
   "download_ts_title", "Descarrega de sèries temporals", "Time series download", "Descarga de series temporales",
   "download_ts_text", "Un cop calculada, la sèrie temporal es pot descarregar en format text (arxiu csv).", "Once calculated, time series can be downloaded in text format (csv file).", "Una vez calculada, la serie temporal se puede descargar en formato texto (archivo csv).",
