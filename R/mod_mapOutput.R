@@ -112,6 +112,11 @@ mod_map <- function(
               tickIcon = "glyphicon-ok-sign"
             )
           ),
+          shiny::conditionalPanel(
+            condition = "input.user_var == 'LFMC'",
+            ns = ns,
+            shiny::p(translate_app("LFMC_capped", lang()))
+          ),
           shiny::br(),
           # user_date
           shinyWidgets::airDatepickerInput(
@@ -259,6 +264,9 @@ mod_map <- function(
     ")
     DBI::dbGetQuery(duckdb_conn, date_query) |>
       dplyr::as_tibble() |>
+      dplyr::mutate(
+        LFMC = dplyr::if_else(LFMC >= 150, 150, LFMC)
+      ) |>
       sf::st_as_sf(wkt = "geom", crs = 25830) |>
       sf::st_transform(crs = 4326)
   }) |>

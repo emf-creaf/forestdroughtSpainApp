@@ -69,6 +69,7 @@ app_translations <- tibble::tribble(
   "dismiss", "Tancar", "Dismiss", "Cerrar",
   "map_help", "Ajuda mapa diari", "Map help", "Ayuda mapa diario",
   "ts_help", "Ajuda sèries temporals", "Time series help", "Ayuda series temporales",
+  "LFMC_capped", "La visualització de LFMC limita el màxim valor a 150% per poder discriminar millor valors baixos. Les dades baixades contenen els valors actuals.", "The LFMC visualization limits the maximum value to 150% to better discriminate low values. The downloaded data contains the current values.", "La visualización de LFMC limita el máximo valor a 150% para poder discriminar mejor valores bajos. Los datos descargados contienen los valores actuales.",
   # emty string
   "", "", "", ""
 )
